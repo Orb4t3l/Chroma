@@ -40,16 +40,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
 
-    private static final VoxelShape SHAPE_CONTROLLER_NORTH = Shapes.or(
-            Block.box(0, 0, 0, 16, 3, 16),
-            Block.box(1, 3, 1, 15, 10, 15),
-            Block.box(-1, 9, -1, 17, 14, 17)
-    );
-
-    private static final VoxelShape SHAPE_EXTENSION_NORTH = Shapes.or(
-            Block.box(0, 0, 0, 16, 3, 16),
-            Block.box(1, 3, 1, 15, 9, 15)
-    );
+    private static final VoxelShape SHAPE_FULL_BLOCK = Block.box(0, 0, 0, 16, 16, 16);
 
     public DyeingTableBlock(Properties properties) {
         super(properties);
@@ -82,26 +73,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        VoxelShape base = state.getValue(PART) == Part.CONTROLLER ? SHAPE_CONTROLLER_NORTH : SHAPE_EXTENSION_NORTH;
-        return rotateShape(base, state.getValue(FACING));
-    }
-
-    private VoxelShape rotateShape(VoxelShape shape, Direction facing) {
-        VoxelShape[] buffer = new VoxelShape[]{shape, Shapes.empty()};
-        int rotations = switch (facing) {
-            case NORTH -> 0;
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        for (int i = 0; i < rotations; i++) {
-            buffer[1] = Shapes.empty();
-            buffer[0].forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> buffer[1] = Shapes.or(buffer[1],
-                    Shapes.box(1 - maxZ, minY, minX, 1 - minZ, maxY, maxX)));
-            buffer[0] = buffer[1];
-        }
-        return buffer[0];
+        return SHAPE_FULL_BLOCK;
     }
 
     @Override
@@ -128,7 +100,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
                 : pos.relative(state.getValue(FACING).getCounterClockWise());
         BlockEntity be = level.getBlockEntity(controllerPos);
         if (be instanceof MenuProvider menuProvider) {
-            player.openMenu(menuProvider, controllerPos);
+            net.minecraftforge.network.NetworkHooks.openScreen((net.minecraft.server.level.ServerPlayer) player, menuProvider, controllerPos);
         }
         return InteractionResult.CONSUME;
     }
@@ -163,8 +135,19 @@ public class DyeingTableBlock extends BaseEntityBlock {
         return PushReaction.BLOCK;
     }
 
-    public enum Part {
-        CONTROLLER,
-        EXTENSION
+    public enum Part implements net.minecraft.util.StringRepresentable {
+        CONTROLLER("controller"),
+        EXTENSION("extension");
+
+        private final String name;
+
+        Part(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
     }
 }

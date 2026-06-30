@@ -84,6 +84,6 @@ public class DyeingTableMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return blockEntity.getBlockPos().closerToCenter(player.position(), 8.0);
+        return net.minecraft.world.phys.Vec3.atCenterOf(blockEntity.getBlockPos()).closerThan(player.position(), 8.0);
     }
 }
