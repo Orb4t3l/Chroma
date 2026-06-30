@@ -61,7 +61,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         int startColor = menu.getClientColor();
         red   = (startColor >> 16) & 0xFF;
         green = (startColor >> 8)  & 0xFF;
-        blue  =  startColor & 0xFF;
+        blue  =  startColor        & 0xFF;
 
         redSlider = new GradientSlider(
                 leftPos + SLIDER_X, topPos + SLIDER_R_Y, SLIDER_W, SLIDER_H,
@@ -89,6 +89,39 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         hexBox.setResponder(this::onHexChanged);
         hexBox.setValue(String.format("%06X", startColor));
         addRenderableWidget(hexBox);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (redSlider.isMouseOver(mouseX, mouseY)) {
+            setFocused(redSlider);
+            return redSlider.mouseClicked(mouseX, mouseY, button);
+        }
+        if (greenSlider.isMouseOver(mouseX, mouseY)) {
+            setFocused(greenSlider);
+            return greenSlider.mouseClicked(mouseX, mouseY, button);
+        }
+        if (blueSlider.isMouseOver(mouseX, mouseY)) {
+            setFocused(blueSlider);
+            return blueSlider.mouseClicked(mouseX, mouseY, button);
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (getFocused() instanceof GradientSlider slider) {
+            return slider.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (getFocused() instanceof GradientSlider slider) {
+            return slider.mouseReleased(mouseX, mouseY, button);
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     private void onSliderChanged() {
@@ -133,7 +166,6 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         int color = currentColor();
         graphics.fill(x + PREVIEW_X, y + PREVIEW_Y, x + PREVIEW_X + PREVIEW_W, y + PREVIEW_Y + PREVIEW_H, 0xFF000000 | color);
         graphics.renderOutline(x + PREVIEW_X - 1, y + PREVIEW_Y - 1, PREVIEW_W + 2, PREVIEW_H + 2, 0xFF444444);
-
         graphics.drawString(font, "#", x + HEX_X - 1, y + HEX_Y + 4, 0x555555, false);
     }
 
@@ -211,10 +243,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
             graphics.fill(handleX + 1, y, handleX + 5, y + h, 0xFF888888);
 
             Font font = Minecraft.getInstance().font;
-            int v = getChannelValue();
-            int labelX = x + w + 4;
-            int labelY = y + (h - 8) / 2;
-            graphics.drawString(font, String.valueOf(v), labelX, labelY, 0xFF404040, false);
+            graphics.drawString(font, String.valueOf(getChannelValue()), x + w + 4, y + (h - 8) / 2, 0xFF404040, false);
         }
     }
 }

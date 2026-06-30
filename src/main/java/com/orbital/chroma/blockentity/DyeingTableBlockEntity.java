@@ -1,24 +1,28 @@
 package com.orbital.chroma.blockentity;
 
 import com.orbital.chroma.api.ColorAPI;
-import com.orbital.chroma.api.IDyeable;
 import com.orbital.chroma.menu.DyeingTableMenu;
 import com.orbital.chroma.registry.ChromaBlockEntities;
+import com.orbital.chroma.registry.ChromaItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,8 +39,10 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem
-                    && (ColorAPI.isDyeable(blockItem.getBlock()) || stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem);
+            if (stack.getItem() instanceof BlockItem bi) {
+                return ColorAPI.isDyeable(bi.getBlock()) || bi.getBlock().defaultBlockState().is(BlockTags.WOOL);
+            }
+            return stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem;
         }
     };
 
@@ -57,27 +63,30 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
 
     public void applyColorToInput() {
         ItemStack stack = itemHandler.getStackInSlot(0);
-        if (stack.isEmpty()) {
+        if (stack.isEmpty()) return;
+
+        if (stack.getItem() instanceof BlockItem bi && bi.getBlock().defaultBlockState().is(BlockTags.WOOL)) {
+            ItemStack chromaStack = new ItemStack(ChromaItems.CHROMA_WOOL.get(), stack.getCount());
+            ColorAPI.setItemColor(chromaStack, pickerColor);
+            itemHandler.setStackInSlot(0, chromaStack);
+            setChanged();
             return;
         }
-        if (stack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem && ColorAPI.isDyeable(blockItem.getBlock())) {
+
+        if (stack.getItem() instanceof BlockItem bi && ColorAPI.isDyeable(bi.getBlock())) {
             ColorAPI.setItemColor(stack, pickerColor);
-        } else if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem dyeable) {
-            stack.getOrCreateTagElement("display").putInt("color", pickerColor);
+            setChanged();
+            return;
         }
-        setChanged();
+
+        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
+            stack.getOrCreateTagElement("display").putInt("color", pickerColor);
+            setChanged();
+        }
     }
 
     public ItemStackHandler getItemHandler() {
         return itemHandler;
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag tag = super.getUpdateTag();
-        tag.putInt("PickerColor", pickerColor);
-        tag.put("Inventory", itemHandler.serializeNBT());
-        return tag;
     }
 
     @Override
@@ -90,20 +99,27 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
-        if (tag.contains("PickerColor")) {
-            pickerColor = tag.getInt("PickerColor");
-        }
-        if (tag.contains("Inventory")) {
-            itemHandler.deserializeNBT(tag.getCompound("Inventory"));
-        }
+        if (tag.contains("PickerColor")) pickerColor = tag.getInt("PickerColor");
+        if (tag.contains("Inventory")) itemHandler.deserializeNBT(tag.getCompound("Inventory"));
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag tag = super.getUpdateTag();
+        tag.putInt("PickerColor", pickerColor);
+        tag.put("Inventory", itemHandler.serializeNBT());
+        return tag;
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable net.minecraft.core.Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) {
-            return itemHandlerOptional.cast();
-        }
+        if (cap == ForgeCapabilities.ITEM_HANDLER) return itemHandlerOptional.cast();
         return super.getCapability(cap, side);
     }
 
