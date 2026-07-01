@@ -10,19 +10,23 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,10 +43,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (stack.getItem() instanceof BlockItem bi) {
-                return ColorAPI.isDyeable(bi.getBlock()) || bi.getBlock().defaultBlockState().is(BlockTags.WOOL);
-            }
-            return stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem;
+            return isAccepted(stack);
         }
     };
 
@@ -52,9 +53,30 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         super(ChromaBlockEntities.DYEING_TABLE.get(), pos, state);
     }
 
-    public int getPickerColor() {
-        return pickerColor;
+    private static boolean isAccepted(ItemStack stack) {
+        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) return true;
+        if (!(stack.getItem() instanceof BlockItem bi)) return false;
+        Block block = bi.getBlock();
+        if (ColorAPI.isDyeable(block)) return true;
+        return vanillaTarget(block) != null;
     }
+
+    @Nullable
+    private static Item vanillaTarget(Block block) {
+        BlockState state = block.defaultBlockState();
+        if (state.is(BlockTags.WOOL))         return ChromaItems.CHROMA_WOOL.get();
+        if (state.is(BlockTags.WOOL_CARPETS)) return ChromaItems.CHROMA_CARPET.get();
+        ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
+        if (id == null) return null;
+        String path = id.getPath();
+        if (path.endsWith("_concrete_powder"))  return ChromaItems.CHROMA_CONCRETE_POWDER.get();
+        if (path.endsWith("_concrete"))         return ChromaItems.CHROMA_CONCRETE.get();
+        if (path.contains("terracotta") && !path.contains("glazed")) return ChromaItems.CHROMA_TERRACOTTA.get();
+        if (path.endsWith("_stained_glass"))    return ChromaItems.CHROMA_STAINED_GLASS.get();
+        return null;
+    }
+
+    public int getPickerColor() { return pickerColor; }
 
     public void setPickerColor(int rgb) {
         this.pickerColor = rgb;
@@ -65,29 +87,31 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         ItemStack stack = itemHandler.getStackInSlot(0);
         if (stack.isEmpty()) return;
 
-        if (stack.getItem() instanceof BlockItem bi && bi.getBlock().defaultBlockState().is(BlockTags.WOOL)) {
-            ItemStack chromaStack = new ItemStack(ChromaItems.CHROMA_WOOL.get(), stack.getCount());
-            ColorAPI.setItemColor(chromaStack, pickerColor);
-            itemHandler.setStackInSlot(0, chromaStack);
+        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
+            stack.getOrCreateTagElement("display").putInt("color", pickerColor);
             setChanged();
             return;
         }
 
-        if (stack.getItem() instanceof BlockItem bi && ColorAPI.isDyeable(bi.getBlock())) {
+        if (!(stack.getItem() instanceof BlockItem bi)) return;
+        Block block = bi.getBlock();
+
+        if (ColorAPI.isDyeable(block)) {
             ColorAPI.setItemColor(stack, pickerColor);
             setChanged();
             return;
         }
 
-        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
-            stack.getOrCreateTagElement("display").putInt("color", pickerColor);
+        Item target = vanillaTarget(block);
+        if (target != null) {
+            ItemStack converted = new ItemStack(target, stack.getCount());
+            ColorAPI.setItemColor(converted, pickerColor);
+            itemHandler.setStackInSlot(0, converted);
             setChanged();
         }
     }
 
-    public ItemStackHandler getItemHandler() {
-        return itemHandler;
-    }
+    public ItemStackHandler getItemHandler() { return itemHandler; }
 
     @Override
     public void saveAdditional(CompoundTag tag) {

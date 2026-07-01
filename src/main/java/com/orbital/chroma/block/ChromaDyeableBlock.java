@@ -1,8 +1,6 @@
 package com.orbital.chroma.block;
 
-import com.orbital.chroma.api.DyeableBlockEntity;
-import com.orbital.chroma.blockentity.ChromaWoolBlockEntity;
-import com.orbital.chroma.registry.ChromaBlockEntities;
+import com.orbital.chroma.blockentity.ChromaDyeableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -12,17 +10,21 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
-public class ChromaWoolBlock extends BaseEntityBlock {
+public class ChromaDyeableBlock extends BaseEntityBlock {
 
-    public ChromaWoolBlock(Properties properties) {
+    private final Supplier<BlockEntityType<ChromaDyeableBlockEntity>> beType;
+
+    public ChromaDyeableBlock(Properties properties, Supplier<BlockEntityType<ChromaDyeableBlockEntity>> beType) {
         super(properties);
+        this.beType = beType;
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new ChromaWoolBlockEntity(pos, state);
+        return new ChromaDyeableBlockEntity(beType.get(), pos, state);
     }
 
     @Nullable

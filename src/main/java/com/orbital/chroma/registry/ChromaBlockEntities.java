@@ -1,7 +1,7 @@
 package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
-import com.orbital.chroma.blockentity.ChromaWoolBlockEntity;
+import com.orbital.chroma.blockentity.ChromaDyeableBlockEntity;
 import com.orbital.chroma.blockentity.DyeingTableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
@@ -18,10 +18,41 @@ public final class ChromaBlockEntities {
             () -> BlockEntityType.Builder.of(DyeingTableBlockEntity::new,
                     ChromaBlocks.DYEING_TABLE.get()).build(null));
 
-    public static final RegistryObject<BlockEntityType<ChromaWoolBlockEntity>> CHROMA_WOOL = REGISTRY.register(
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_WOOL = REGISTRY.register(
             "chroma_wool",
-            () -> BlockEntityType.Builder.of(ChromaWoolBlockEntity::new,
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_WOOL.get(), pos, state),
                     ChromaBlocks.CHROMA_WOOL.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_CARPET = REGISTRY.register(
+            "chroma_carpet",
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_CARPET.get(), pos, state),
+                    ChromaBlocks.CHROMA_CARPET.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_CONCRETE = REGISTRY.register(
+            "chroma_concrete",
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_CONCRETE.get(), pos, state),
+                    ChromaBlocks.CHROMA_CONCRETE.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_CONCRETE_POWDER = REGISTRY.register(
+            "chroma_concrete_powder",
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_CONCRETE_POWDER.get(), pos, state),
+                    ChromaBlocks.CHROMA_CONCRETE_POWDER.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_TERRACOTTA = REGISTRY.register(
+            "chroma_terracotta",
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_TERRACOTTA.get(), pos, state),
+                    ChromaBlocks.CHROMA_TERRACOTTA.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_STAINED_GLASS = REGISTRY.register(
+            "chroma_stained_glass",
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_STAINED_GLASS.get(), pos, state),
+                    ChromaBlocks.CHROMA_STAINED_GLASS.get()).build(null));
 
     private ChromaBlockEntities() {
     }
