@@ -1,10 +1,7 @@
 package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
-import com.orbital.chroma.block.ChromaCarpetBlock;
-import com.orbital.chroma.block.ChromaDyeableBlock;
-import com.orbital.chroma.block.ChromaStainedGlassBlock;
-import com.orbital.chroma.block.DyeingTableBlock;
+import com.orbital.chroma.block.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -20,9 +17,7 @@ public final class ChromaBlocks {
 
     public static final RegistryObject<Block> DYEING_TABLE = REGISTRY.register("dyeing_table",
             () -> new DyeingTableBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.WOOD)
-                    .strength(2.5f)
-                    .noOcclusion()));
+                    .mapColor(MapColor.WOOD).strength(2.5f).noOcclusion()));
 
     public static final RegistryObject<Block> CHROMA_WOOL = REGISTRY.register("chroma_wool",
             () -> new ChromaDyeableBlock(
@@ -57,6 +52,13 @@ public final class ChromaBlocks {
                             .sound(SoundType.GLASS).noOcclusion(),
                     () -> ChromaBlockEntities.CHROMA_STAINED_GLASS.get()));
 
-    private ChromaBlocks() {
-    }
+    public static final RegistryObject<Block> CHROMA_BANNER = REGISTRY.register("chroma_banner",
+            () -> new ChromaBannerBlock(BlockBehaviour.Properties.of()
+                    .noCollission().strength(1.0f).sound(SoundType.WOOD)));
+
+    public static final RegistryObject<Block> CHROMA_WALL_BANNER = REGISTRY.register("chroma_wall_banner",
+            () -> new ChromaWallBannerBlock(BlockBehaviour.Properties.of()
+                    .noCollission().strength(1.0f).sound(SoundType.WOOD).lootFrom(ChromaBlocks.CHROMA_BANNER)));
+
+    private ChromaBlocks() {}
 }

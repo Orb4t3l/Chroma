@@ -12,6 +12,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -43,36 +44,33 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return isAccepted(stack);
+            if (stack.isEmpty()) return false;
+            if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) return true;
+            if (stack.is(ItemTags.BANNERS)) return true;
+            if (!(stack.getItem() instanceof BlockItem bi)) return false;
+            if (ColorAPI.isDyeable(bi.getBlock())) return true;
+            return getConversionTarget(bi.getBlock()) != null;
         }
     };
 
-    private final LazyOptional<ItemStackHandler> itemHandlerOptional = LazyOptional.of(() -> itemHandler);
+    private final LazyOptional<ItemStackHandler> lazyHandler = LazyOptional.of(() -> itemHandler);
 
     public DyeingTableBlockEntity(BlockPos pos, BlockState state) {
         super(ChromaBlockEntities.DYEING_TABLE.get(), pos, state);
     }
 
-    private static boolean isAccepted(ItemStack stack) {
-        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) return true;
-        if (!(stack.getItem() instanceof BlockItem bi)) return false;
-        Block block = bi.getBlock();
-        if (ColorAPI.isDyeable(block)) return true;
-        return vanillaTarget(block) != null;
-    }
-
     @Nullable
-    private static Item vanillaTarget(Block block) {
+    private static Item getConversionTarget(Block block) {
         BlockState state = block.defaultBlockState();
-        if (state.is(BlockTags.WOOL))         return ChromaItems.CHROMA_WOOL.get();
+        if (state.is(BlockTags.WOOL)) return ChromaItems.CHROMA_WOOL.get();
         if (state.is(BlockTags.WOOL_CARPETS)) return ChromaItems.CHROMA_CARPET.get();
         ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
         if (id == null) return null;
         String path = id.getPath();
-        if (path.endsWith("_concrete_powder"))  return ChromaItems.CHROMA_CONCRETE_POWDER.get();
-        if (path.endsWith("_concrete"))         return ChromaItems.CHROMA_CONCRETE.get();
+        if (path.endsWith("_concrete_powder")) return ChromaItems.CHROMA_CONCRETE_POWDER.get();
+        if (path.endsWith("_concrete"))        return ChromaItems.CHROMA_CONCRETE.get();
         if (path.contains("terracotta") && !path.contains("glazed")) return ChromaItems.CHROMA_TERRACOTTA.get();
-        if (path.endsWith("_stained_glass"))    return ChromaItems.CHROMA_STAINED_GLASS.get();
+        if (path.endsWith("_stained_glass"))   return ChromaItems.CHROMA_STAINED_GLASS.get();
         return null;
     }
 
@@ -93,16 +91,24 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             return;
         }
 
-        if (!(stack.getItem() instanceof BlockItem bi)) return;
-        Block block = bi.getBlock();
+        if (stack.is(ItemTags.BANNERS)) {
+            ItemStack chromaBanner = new ItemStack(ChromaItems.CHROMA_BANNER.get(), stack.getCount());
+            if (stack.hasTag()) chromaBanner.setTag(stack.getTag().copy());
+            ColorAPI.setItemColor(chromaBanner, pickerColor);
+            itemHandler.setStackInSlot(0, chromaBanner);
+            setChanged();
+            return;
+        }
 
-        if (ColorAPI.isDyeable(block)) {
+        if (!(stack.getItem() instanceof BlockItem bi)) return;
+
+        if (ColorAPI.isDyeable(bi.getBlock())) {
             ColorAPI.setItemColor(stack, pickerColor);
             setChanged();
             return;
         }
 
-        Item target = vanillaTarget(block);
+        Item target = getConversionTarget(bi.getBlock());
         if (target != null) {
             ItemStack converted = new ItemStack(target, stack.getCount());
             ColorAPI.setItemColor(converted, pickerColor);
@@ -143,14 +149,14 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable net.minecraft.core.Direction side) {
-        if (cap == ForgeCapabilities.ITEM_HANDLER) return itemHandlerOptional.cast();
+        if (cap == ForgeCapabilities.ITEM_HANDLER) return lazyHandler.cast();
         return super.getCapability(cap, side);
     }
 
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
-        itemHandlerOptional.invalidate();
+        lazyHandler.invalidate();
     }
 
     @Override
@@ -160,7 +166,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new DyeingTableMenu(containerId, playerInventory, this);
+    public AbstractContainerMenu createMenu(int id, Inventory inv, Player player) {
+        return new DyeingTableMenu(id, inv, this);
     }
 }

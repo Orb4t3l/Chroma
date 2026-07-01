@@ -1,6 +1,7 @@
 package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
+import com.orbital.chroma.blockentity.ChromaBannerBlockEntity;
 import com.orbital.chroma.blockentity.ChromaDyeableBlockEntity;
 import com.orbital.chroma.blockentity.DyeingTableBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -54,6 +55,12 @@ public final class ChromaBlockEntities {
                     (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_STAINED_GLASS.get(), pos, state),
                     ChromaBlocks.CHROMA_STAINED_GLASS.get()).build(null));
 
-    private ChromaBlockEntities() {
-    }
+    public static final RegistryObject<BlockEntityType<ChromaBannerBlockEntity>> CHROMA_BANNER = REGISTRY.register(
+            "chroma_banner",
+            () -> BlockEntityType.Builder.of(
+                    ChromaBannerBlockEntity::new,
+                    ChromaBlocks.CHROMA_BANNER.get(),
+                    ChromaBlocks.CHROMA_WALL_BANNER.get()).build(null));
+
+    private ChromaBlockEntities() {}
 }

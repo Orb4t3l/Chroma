@@ -2,6 +2,7 @@ package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -33,6 +34,9 @@ public final class ChromaItems {
     public static final RegistryObject<Item> CHROMA_STAINED_GLASS = REGISTRY.register("chroma_stained_glass",
             () -> new BlockItem(ChromaBlocks.CHROMA_STAINED_GLASS.get(), new Item.Properties()));
 
-    private ChromaItems() {
-    }
+    public static final RegistryObject<Item> CHROMA_BANNER = REGISTRY.register("chroma_banner",
+            () -> new BannerItem(ChromaBlocks.CHROMA_BANNER.get(), ChromaBlocks.CHROMA_WALL_BANNER.get(),
+                    new Item.Properties().stacksTo(16)));
+
+    private ChromaItems() {}
 }

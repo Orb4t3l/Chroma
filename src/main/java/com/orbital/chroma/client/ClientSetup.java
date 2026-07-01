@@ -1,42 +1,43 @@
 package com.orbital.chroma.client;
 
+import com.orbital.chroma.ChromaMod;
 import com.orbital.chroma.api.IDyeable;
 import com.orbital.chroma.api.ColorAPI;
+import com.orbital.chroma.blockentity.ChromaBannerBlockEntity;
+import com.orbital.chroma.registry.ChromaBlockEntities;
 import com.orbital.chroma.registry.ChromaBlocks;
 import com.orbital.chroma.registry.ChromaItems;
+import com.orbital.chroma.registry.ChromaMenus;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.client.model.data.ModelData;
-import com.orbital.chroma.ChromaMod;
-import com.orbital.chroma.registry.ChromaMenus;
 
 @Mod.EventBusSubscriber(modid = ChromaMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class ClientSetup {
 
-    private ClientSetup() {
-    }
+    private ClientSetup() {}
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             MenuScreens.register(ChromaMenus.DYEING_TABLE.get(), DyeingTableScreen::new);
-
-            net.minecraft.client.renderer.ItemBlockRenderTypes.setRenderLayer(
-                    ChromaBlocks.CHROMA_STAINED_GLASS.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ChromaBlocks.CHROMA_STAINED_GLASS.get(), RenderType.translucent());
+            BlockEntityRenderers.register(ChromaBlockEntities.CHROMA_BANNER.get(), ChromaBannerRenderer::new);
         });
     }
 
     @SubscribeEvent
     public static void onRegisterBlockColors(RegisterColorHandlersEvent.Block event) {
-        Block[] chromaBlocks = {
+        Block[] dyeableBlocks = {
                 ChromaBlocks.CHROMA_WOOL.get(),
                 ChromaBlocks.CHROMA_CARPET.get(),
                 ChromaBlocks.CHROMA_CONCRETE.get(),
@@ -48,30 +49,28 @@ public final class ClientSetup {
         event.register((state, level, pos, tintIndex) -> {
             if (level != null && pos != null) {
                 BlockEntity be = level.getBlockEntity(pos);
-                if (be instanceof IDyeable dyeable) {
-                    return dyeable.getColor();
-                }
+                if (be instanceof IDyeable dyeable) return dyeable.getColor();
             }
             return 0xFFFFFF;
-        }, chromaBlocks);
+        }, dyeableBlocks);
     }
 
     @SubscribeEvent
     public static void onRegisterItemColors(RegisterColorHandlersEvent.Item event) {
-        Item[] chromaItems = {
+        Item[] dyeableItems = {
                 ChromaItems.CHROMA_WOOL.get(),
                 ChromaItems.CHROMA_CARPET.get(),
                 ChromaItems.CHROMA_CONCRETE.get(),
                 ChromaItems.CHROMA_CONCRETE_POWDER.get(),
                 ChromaItems.CHROMA_TERRACOTTA.get(),
-                ChromaItems.CHROMA_STAINED_GLASS.get()
+                ChromaItems.CHROMA_STAINED_GLASS.get(),
+                ChromaItems.CHROMA_BANNER.get()
         };
 
-        event.register((stack, tintIndex) -> {
-            if (stack.hasTag() && stack.getTag().contains("ChromaColor")) {
-                return stack.getTag().getInt("ChromaColor");
-            }
-            return 0xFFFFFF;
-        }, chromaItems);
+        event.register((stack, tintIndex) ->
+                        stack.hasTag() && stack.getTag().contains("ChromaColor")
+                                ? stack.getTag().getInt("ChromaColor")
+                                : 0xFFFFFF,
+                dyeableItems);
     }
 }
