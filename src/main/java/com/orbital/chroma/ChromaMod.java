@@ -7,17 +7,22 @@ import com.orbital.chroma.registry.ChromaItems;
 import com.orbital.chroma.registry.ChromaMenus;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod(ChromaMod.MOD_ID)
 public class ChromaMod {
 
     public static final String MOD_ID = "chroma";
 
-    public ChromaMod(IEventBus modEventBus) {
+    @SuppressWarnings("removal")
+    public ChromaMod() {
+        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
         ChromaBlocks.REGISTRY.register(modEventBus);
         ChromaItems.REGISTRY.register(modEventBus);
         ChromaBlockEntities.REGISTRY.register(modEventBus);
         ChromaMenus.REGISTRY.register(modEventBus);
+
         ChromaNetwork.register();
     }
 }

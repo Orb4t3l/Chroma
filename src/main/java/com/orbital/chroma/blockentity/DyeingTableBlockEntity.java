@@ -47,6 +47,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             if (stack.isEmpty()) return false;
             if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) return true;
             if (stack.is(ItemTags.BANNERS)) return true;
+            if (stack.hasTag() && stack.getTag().contains("ChromaColor")) return true;
             if (!(stack.getItem() instanceof BlockItem bi)) return false;
             if (ColorAPI.isDyeable(bi.getBlock())) return true;
             return getConversionTarget(bi.getBlock()) != null;
@@ -96,6 +97,12 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             if (stack.hasTag()) chromaBanner.setTag(stack.getTag().copy());
             ColorAPI.setItemColor(chromaBanner, pickerColor);
             itemHandler.setStackInSlot(0, chromaBanner);
+            setChanged();
+            return;
+        }
+
+        if (stack.hasTag() && stack.getTag().contains("ChromaColor")) {
+            ColorAPI.setItemColor(stack, pickerColor);
             setChanged();
             return;
         }
