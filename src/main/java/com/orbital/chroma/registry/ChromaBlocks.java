@@ -1,7 +1,12 @@
 package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
-import com.orbital.chroma.block.*;
+import com.orbital.chroma.block.ChromaBannerBlock;
+import com.orbital.chroma.block.ChromaCarpetBlock;
+import com.orbital.chroma.block.ChromaDyeableBlock;
+import com.orbital.chroma.block.ChromaStainedGlassBlock;
+import com.orbital.chroma.block.ChromaWallBannerBlock;
+import com.orbital.chroma.block.DyeingTableBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -58,7 +63,8 @@ public final class ChromaBlocks {
 
     public static final RegistryObject<Block> CHROMA_WALL_BANNER = REGISTRY.register("chroma_wall_banner",
             () -> new ChromaWallBannerBlock(BlockBehaviour.Properties.of()
-                    .noCollission().strength(1.0f).sound(SoundType.WOOD).lootFrom(ChromaBlocks.CHROMA_BANNER)));
+                    .noCollission().strength(1.0f).sound(SoundType.WOOD)
+                    .lootFrom(ChromaBlocks.CHROMA_BANNER)));
 
     private ChromaBlocks() {}
 }

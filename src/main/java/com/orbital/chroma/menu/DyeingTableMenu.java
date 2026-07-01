@@ -9,13 +9,13 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.items.SlotItemHandler;
 
 public class DyeingTableMenu extends AbstractContainerMenu {
 
     public static final int SLOT_X = 80;
     public static final int SLOT_Y = 20;
-
     public static final int INV_ROW_Y = 122;
     public static final int HOTBAR_Y = 180;
 
@@ -42,7 +42,8 @@ public class DyeingTableMenu extends AbstractContainerMenu {
     }
 
     public DyeingTableMenu(int containerId, Inventory playerInventory, BlockPos pos) {
-        this(containerId, playerInventory, (DyeingTableBlockEntity) playerInventory.player.level().getBlockEntity(pos));
+        this(containerId, playerInventory,
+                (DyeingTableBlockEntity) playerInventory.player.level().getBlockEntity(pos));
     }
 
     public void syncColorData() {
@@ -70,25 +71,18 @@ public class DyeingTableMenu extends AbstractContainerMenu {
             ItemStack stackInSlot = slot.getItem();
             result = stackInSlot.copy();
             if (index == 0) {
-                if (!moveItemStackTo(stackInSlot, 1, 37, true)) {
-                    return ItemStack.EMPTY;
-                }
+                if (!moveItemStackTo(stackInSlot, 1, 37, true)) return ItemStack.EMPTY;
             } else {
-                if (!moveItemStackTo(stackInSlot, 0, 1, false)) {
-                    return ItemStack.EMPTY;
-                }
+                if (!moveItemStackTo(stackInSlot, 0, 1, false)) return ItemStack.EMPTY;
             }
-            if (stackInSlot.isEmpty()) {
-                slot.set(ItemStack.EMPTY);
-            } else {
-                slot.setChanged();
-            }
+            if (stackInSlot.isEmpty()) slot.set(ItemStack.EMPTY);
+            else slot.setChanged();
         }
         return result;
     }
 
     @Override
     public boolean stillValid(Player player) {
-        return net.minecraft.world.phys.Vec3.atCenterOf(blockEntity.getBlockPos()).closerThan(player.position(), 8.0);
+        return Vec3.atCenterOf(blockEntity.getBlockPos()).closerThan(player.position(), 8.0);
     }
 }

@@ -3,12 +3,9 @@ package com.orbital.chroma.blockentity;
 import com.orbital.chroma.registry.ChromaBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.BannerBlockEntity;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class ChromaBannerBlockEntity extends BannerBlockEntity {
@@ -16,11 +13,12 @@ public class ChromaBannerBlockEntity extends BannerBlockEntity {
     private int chromaColor = 0xFFFFFF;
 
     public ChromaBannerBlockEntity(BlockPos pos, BlockState state) {
-        super(ChromaBlockEntities.CHROMA_BANNER.get(), pos, state, net.minecraft.world.item.DyeColor.WHITE);
+        super(pos, state, DyeColor.WHITE);
     }
 
-    public ChromaBannerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state, net.minecraft.world.item.DyeColor.WHITE);
+    @Override
+    public BlockEntityType<?> getType() {
+        return ChromaBlockEntities.CHROMA_BANNER.get();
     }
 
     public int getChromaColor() {
@@ -54,10 +52,5 @@ public class ChromaBannerBlockEntity extends BannerBlockEntity {
         CompoundTag tag = super.getUpdateTag();
         tag.putInt("ChromaColor", chromaColor);
         return tag;
-    }
-
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
     }
 }

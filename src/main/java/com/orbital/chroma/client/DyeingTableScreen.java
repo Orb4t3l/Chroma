@@ -17,6 +17,7 @@ import java.util.function.IntConsumer;
 
 public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> {
 
+    @SuppressWarnings("deprecation")
     private static final ResourceLocation TEXTURE = new ResourceLocation("chroma", "textures/gui/dyeing_table.png");
 
     private static final int SLIDER_X = 12;
@@ -63,21 +64,17 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         green = (startColor >> 8)  & 0xFF;
         blue  =  startColor        & 0xFF;
 
-        redSlider = new GradientSlider(
-                leftPos + SLIDER_X, topPos + SLIDER_R_Y, SLIDER_W, SLIDER_H,
+        redSlider = new GradientSlider(leftPos + SLIDER_X, topPos + SLIDER_R_Y, SLIDER_W, SLIDER_H,
                 red, Channel.RED,
-                v -> { if (!updatingFromHex) { red = v; onSliderChanged(); } }
-        );
-        greenSlider = new GradientSlider(
-                leftPos + SLIDER_X, topPos + SLIDER_G_Y, SLIDER_W, SLIDER_H,
+                v -> { if (!updatingFromHex) { red = v; onSliderChanged(); } });
+
+        greenSlider = new GradientSlider(leftPos + SLIDER_X, topPos + SLIDER_G_Y, SLIDER_W, SLIDER_H,
                 green, Channel.GREEN,
-                v -> { if (!updatingFromHex) { green = v; onSliderChanged(); } }
-        );
-        blueSlider = new GradientSlider(
-                leftPos + SLIDER_X, topPos + SLIDER_B_Y, SLIDER_W, SLIDER_H,
+                v -> { if (!updatingFromHex) { green = v; onSliderChanged(); } });
+
+        blueSlider = new GradientSlider(leftPos + SLIDER_X, topPos + SLIDER_B_Y, SLIDER_W, SLIDER_H,
                 blue, Channel.BLUE,
-                v -> { if (!updatingFromHex) { blue = v; onSliderChanged(); } }
-        );
+                v -> { if (!updatingFromHex) { blue = v; onSliderChanged(); } });
 
         addRenderableWidget(redSlider);
         addRenderableWidget(greenSlider);
@@ -160,11 +157,10 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int x = leftPos;
         int y = topPos;
-
         graphics.blit(TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
-
         int color = currentColor();
-        graphics.fill(x + PREVIEW_X, y + PREVIEW_Y, x + PREVIEW_X + PREVIEW_W, y + PREVIEW_Y + PREVIEW_H, 0xFF000000 | color);
+        graphics.fill(x + PREVIEW_X, y + PREVIEW_Y,
+                x + PREVIEW_X + PREVIEW_W, y + PREVIEW_Y + PREVIEW_H, 0xFF000000 | color);
         graphics.renderOutline(x + PREVIEW_X - 1, y + PREVIEW_Y - 1, PREVIEW_W + 2, PREVIEW_H + 2, 0xFF444444);
         graphics.drawString(font, "#", x + HEX_X - 1, y + HEX_Y + 4, 0x555555, false);
     }

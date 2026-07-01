@@ -1,6 +1,5 @@
 package com.orbital.chroma.api;
 
-
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.world.item.ItemStack;

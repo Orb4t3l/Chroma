@@ -1,17 +1,17 @@
 package com.orbital.chroma.block;
 
 import com.orbital.chroma.blockentity.DyeingTableBlockEntity;
-import com.orbital.chroma.registry.ChromaBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -25,13 +25,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 
@@ -44,7 +38,9 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
     public DyeingTableBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PART, Part.CONTROLLER));
+        registerDefaultState(stateDefinition.any()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(PART, Part.CONTROLLER));
     }
 
     @Override
@@ -57,18 +53,16 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getHorizontalDirection().getOpposite();
         BlockPos extensionPos = context.getClickedPos().relative(facing.getClockWise());
-        Level level = context.getLevel();
-        if (!level.getBlockState(extensionPos).canBeReplaced(context)) {
-            return null;
-        }
+        if (!context.getLevel().getBlockState(extensionPos).canBeReplaced(context)) return null;
         return defaultBlockState().setValue(FACING, facing).setValue(PART, Part.CONTROLLER);
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.LivingEntity placer, net.minecraft.world.item.ItemStack stack) {
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state,
+                            net.minecraft.world.entity.LivingEntity placer,
+                            net.minecraft.world.item.ItemStack stack) {
         Direction facing = state.getValue(FACING);
-        BlockPos extensionPos = pos.relative(facing.getClockWise());
-        level.setBlock(extensionPos, state.setValue(PART, Part.EXTENSION), 3);
+        level.setBlock(pos.relative(facing.getClockWise()), state.setValue(PART, Part.EXTENSION), 3);
     }
 
     @Override
@@ -91,16 +85,16 @@ public class DyeingTableBlock extends BaseEntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        }
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
+                                 InteractionHand hand, BlockHitResult hit) {
+        if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockPos controllerPos = state.getValue(PART) == Part.CONTROLLER
                 ? pos
                 : pos.relative(state.getValue(FACING).getCounterClockWise());
         BlockEntity be = level.getBlockEntity(controllerPos);
         if (be instanceof MenuProvider menuProvider) {
-            net.minecraftforge.network.NetworkHooks.openScreen((net.minecraft.server.level.ServerPlayer) player, menuProvider, controllerPos);
+            net.minecraftforge.network.NetworkHooks.openScreen(
+                    (net.minecraft.server.level.ServerPlayer) player, menuProvider, controllerPos);
         }
         return InteractionResult.CONSUME;
     }
@@ -113,10 +107,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        if (state.getValue(PART) == Part.CONTROLLER) {
-            return new DyeingTableBlockEntity(pos, state);
-        }
-        return null;
+        return state.getValue(PART) == Part.CONTROLLER ? new DyeingTableBlockEntity(pos, state) : null;
     }
 
     @Nullable
@@ -141,13 +132,9 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
         private final String name;
 
-        Part(String name) {
-            this.name = name;
-        }
+        Part(String name) { this.name = name; }
 
         @Override
-        public String getSerializedName() {
-            return name;
-        }
+        public String getSerializedName() { return name; }
     }
 }

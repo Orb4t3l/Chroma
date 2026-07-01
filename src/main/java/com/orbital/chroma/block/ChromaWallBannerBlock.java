@@ -3,15 +3,15 @@ package com.orbital.chroma.block;
 import com.orbital.chroma.blockentity.ChromaBannerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.BannerBlock;
+import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class ChromaBannerBlock extends BannerBlock {
+public class ChromaWallBannerBlock extends WallBannerBlock {
 
-    public ChromaBannerBlock(Properties properties) {
+    public ChromaWallBannerBlock(Properties properties) {
         super(DyeColor.WHITE, properties);
     }
 
