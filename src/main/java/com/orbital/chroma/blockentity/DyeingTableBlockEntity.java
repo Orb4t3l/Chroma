@@ -39,7 +39,14 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         protected void onContentsChanged(int slot) {
+            ItemStack stack = getStackInSlot(slot);
+            if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("ChromaColor")) {
+                pickerColor = stack.getTag().getInt("ChromaColor");
+            }
             setChanged();
+            if (level != null && !level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
         }
 
         @Override
