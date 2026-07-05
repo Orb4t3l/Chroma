@@ -16,14 +16,15 @@ public final class CompatManager {
             if (ModList.get().isLoaded("another_furniture")) AnotherFurnitureCompat.register();
             if (ModList.get().isLoaded("cfm")) CFMCompat.register();
             if (ModList.get().isLoaded("create")) CreateCompat.register();
-            if (ModList.get().isLoaded("sophisticatedbackpacks")) SophisticatedBackpacksCompat.register();
-            if (ModList.get().isLoaded("sophisticatedstorage")) SophisticatedStorageCompat.register();
-            if (ModList.get().isLoaded("supplementaries")) SupplementariesCompat.register();
-            if (ModList.get().isLoaded("mcwfurnitures")) MacawsFurnitureCompat.register();
-            if (ModList.get().isLoaded("quark")) QuarkCompat.register();
-            if (ModList.get().isLoaded("ae2"))     AE2Compat.register();
-
-            AutoDyeScanner.scan();
+            //TODO: Add back when the other compat is added and autodye scanner is a thing
+//            if (ModList.get().isLoaded("sophisticatedbackpacks")) SophisticatedBackpacksCompat.register();
+//            if (ModList.get().isLoaded("sophisticatedstorage")) SophisticatedStorageCompat.register();
+//            if (ModList.get().isLoaded("supplementaries")) SupplementariesCompat.register();
+//            if (ModList.get().isLoaded("mcwfurnitures")) MacawsFurnitureCompat.register();
+//            if (ModList.get().isLoaded("quark")) QuarkCompat.register();
+//            if (ModList.get().isLoaded("ae2")) AE2Compat.register();
+//
+//            AutoDyeScanner.scan();
         });
     }
 }
