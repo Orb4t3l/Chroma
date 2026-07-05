@@ -31,6 +31,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -40,19 +42,20 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         @Override
         protected void onContentsChanged(int slot) {
             ItemStack stack = getStackInSlot(slot);
-            if (!stack.isEmpty() && stack.hasTag() && stack.getTag().contains("ChromaColor")) {
-                pickerColor = stack.getTag().getInt("ChromaColor");
+            if (!stack.isEmpty()) {
+                int read = ColorAPI.getItemColor(stack, -1);
+                if (read != -1) pickerColor = read;
             }
             setChanged();
-            if (level != null && !level.isClientSide) {
+            if (level != null && !level.isClientSide)
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
         }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (stack.isEmpty()) return false;
             if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) return true;
+            if (ColorAPI.isDyeableItem(stack.getItem())) return true;
             if (stack.is(ItemTags.BANNERS)) return true;
             if (stack.hasTag() && stack.getTag().contains("ChromaColor")) return true;
             if (!(stack.getItem() instanceof BlockItem bi)) return false;
@@ -70,7 +73,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
     @Nullable
     private static Item getConversionTarget(Block block) {
         BlockState state = block.defaultBlockState();
-        if (state.is(BlockTags.WOOL)) return ChromaItems.CHROMA_WOOL.get();
+        if (state.is(BlockTags.WOOL))         return ChromaItems.CHROMA_WOOL.get();
         if (state.is(BlockTags.WOOL_CARPETS)) return ChromaItems.CHROMA_CARPET.get();
         ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
         if (id == null) return null;
@@ -80,6 +83,44 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         if (path.contains("terracotta") && !path.contains("glazed")) return ChromaItems.CHROMA_TERRACOTTA.get();
         if (path.endsWith("_stained_glass"))   return ChromaItems.CHROMA_STAINED_GLASS.get();
         return null;
+    }
+
+    private ItemStack coloredCopy(ItemStack original, int color) {
+        if (original.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
+            ItemStack copy = original.copy();
+            copy.getOrCreateTagElement("display").putInt("color", color);
+            return copy;
+        }
+        if (ColorAPI.isDyeableItem(original.getItem())) {
+            ItemStack copy = original.copy();
+            ColorAPI.applyColorToItem(copy, color);
+            return copy;
+        }
+        if (original.is(ItemTags.BANNERS)) {
+            ItemStack banner = new ItemStack(ChromaItems.CHROMA_BANNER.get());
+            if (original.hasTag()) banner.setTag(original.getTag().copy());
+            ColorAPI.setItemColor(banner, color);
+            return banner;
+        }
+        if (original.hasTag() && original.getTag().contains("ChromaColor")) {
+            ItemStack copy = original.copy();
+            ColorAPI.setItemColor(copy, color);
+            return copy;
+        }
+        if (original.getItem() instanceof BlockItem bi) {
+            if (ColorAPI.isDyeable(bi.getBlock())) {
+                ItemStack copy = original.copy();
+                ColorAPI.setItemColor(copy, color);
+                return copy;
+            }
+            Item target = getConversionTarget(bi.getBlock());
+            if (target != null) {
+                ItemStack converted = new ItemStack(target);
+                ColorAPI.setItemColor(converted, color);
+                return converted;
+            }
+        }
+        return original.copy();
     }
 
     public int getPickerColor() { return pickerColor; }
@@ -92,43 +133,33 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
     public void applyColorToInput() {
         ItemStack stack = itemHandler.getStackInSlot(0);
         if (stack.isEmpty()) return;
+        ItemStack result = coloredCopy(stack, pickerColor);
+        result.setCount(stack.getCount());
+        itemHandler.setStackInSlot(0, result);
+        setChanged();
+    }
 
-        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
-            stack.getOrCreateTagElement("display").putInt("color", pickerColor);
-            setChanged();
-            return;
+    public List<ItemStack> applyGradient(int colorA, int colorB) {
+        ItemStack stack = itemHandler.getStackInSlot(0);
+        if (stack.isEmpty()) return List.of();
+
+        int count = stack.getCount();
+        List<ItemStack> results = new ArrayList<>(count);
+
+        int rA = (colorA >> 16) & 0xFF, gA = (colorA >> 8) & 0xFF, bA = colorA & 0xFF;
+        int rB = (colorB >> 16) & 0xFF, gB = (colorB >> 8) & 0xFF, bB = colorB & 0xFF;
+
+        for (int i = 0; i < count; i++) {
+            float t = count == 1 ? 0f : (float) i / (count - 1);
+            int r = Math.round(rA + (rB - rA) * t);
+            int g = Math.round(gA + (gB - gA) * t);
+            int b = Math.round(bA + (bB - bA) * t);
+            results.add(coloredCopy(stack.copyWithCount(1), (r << 16) | (g << 8) | b));
         }
 
-        if (stack.is(ItemTags.BANNERS)) {
-            ItemStack chromaBanner = new ItemStack(ChromaItems.CHROMA_BANNER.get(), stack.getCount());
-            if (stack.hasTag()) chromaBanner.setTag(stack.getTag().copy());
-            ColorAPI.setItemColor(chromaBanner, pickerColor);
-            itemHandler.setStackInSlot(0, chromaBanner);
-            setChanged();
-            return;
-        }
-
-        if (stack.hasTag() && stack.getTag().contains("ChromaColor")) {
-            ColorAPI.setItemColor(stack, pickerColor);
-            setChanged();
-            return;
-        }
-
-        if (!(stack.getItem() instanceof BlockItem bi)) return;
-
-        if (ColorAPI.isDyeable(bi.getBlock())) {
-            ColorAPI.setItemColor(stack, pickerColor);
-            setChanged();
-            return;
-        }
-
-        Item target = getConversionTarget(bi.getBlock());
-        if (target != null) {
-            ItemStack converted = new ItemStack(target, stack.getCount());
-            ColorAPI.setItemColor(converted, pickerColor);
-            itemHandler.setStackInSlot(0, converted);
-            setChanged();
-        }
+        itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+        setChanged();
+        return results;
     }
 
     public ItemStackHandler getItemHandler() { return itemHandler; }
@@ -162,16 +193,13 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
 
     @Nonnull
     @Override
-    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable net.minecraft.core.Direction side) {
+    public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap,
+                                             @Nullable net.minecraft.core.Direction side) {
         if (cap == ForgeCapabilities.ITEM_HANDLER) return lazyHandler.cast();
         return super.getCapability(cap, side);
     }
 
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        lazyHandler.invalidate();
-    }
+    @Override public void invalidateCaps() { lazyHandler.invalidate(); }
 
     @Override
     public Component getDisplayName() {

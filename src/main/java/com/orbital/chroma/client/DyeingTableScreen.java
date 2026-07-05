@@ -45,6 +45,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     private int red;
     private int green;
     private int blue;
+    private int lastKnownColor = -1;
     private boolean updatingFromHex = false;
     private boolean updatingFromSlider = false;
 
@@ -63,6 +64,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         red   = (startColor >> 16) & 0xFF;
         green = (startColor >> 8)  & 0xFF;
         blue  =  startColor        & 0xFF;
+        lastKnownColor = startColor;
 
         redSlider = new GradientSlider(leftPos + SLIDER_X, topPos + SLIDER_R_Y, SLIDER_W, SLIDER_H,
                 red, Channel.RED,
@@ -86,6 +88,24 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         hexBox.setResponder(this::onHexChanged);
         hexBox.setValue(String.format("%06X", startColor));
         addRenderableWidget(hexBox);
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        int serverColor = menu.getClientColor();
+        if (serverColor != lastKnownColor) {
+            lastKnownColor = serverColor;
+            red   = (serverColor >> 16) & 0xFF;
+            green = (serverColor >> 8)  & 0xFF;
+            blue  =  serverColor        & 0xFF;
+            updatingFromSlider = true;
+            redSlider.setChannel(red);
+            greenSlider.setChannel(green);
+            blueSlider.setChannel(blue);
+            hexBox.setValue(String.format("%06X", serverColor));
+            updatingFromSlider = false;
+        }
     }
 
     @Override

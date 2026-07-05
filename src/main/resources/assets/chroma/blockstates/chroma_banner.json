@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "rotation=0":  { "model": "chroma:block/chroma_banner" },
+    "rotation=1":  { "model": "chroma:block/chroma_banner", "y": 22 },
+    "rotation=2":  { "model": "chroma:block/chroma_banner", "y": 45 },
+    "rotation=3":  { "model": "chroma:block/chroma_banner", "y": 67 },
+    "rotation=4":  { "model": "chroma:block/chroma_banner", "y": 90 },
+    "rotation=5":  { "model": "chroma:block/chroma_banner", "y": 112 },
+    "rotation=6":  { "model": "chroma:block/chroma_banner", "y": 135 },
+    "rotation=7":  { "model": "chroma:block/chroma_banner", "y": 157 },
+    "rotation=8":  { "model": "chroma:block/chroma_banner", "y": 180 },
+    "rotation=9":  { "model": "chroma:block/chroma_banner", "y": 202 },
+    "rotation=10": { "model": "chroma:block/chroma_banner", "y": 225 },
+    "rotation=11": { "model": "chroma:block/chroma_banner", "y": 247 },
+    "rotation=12": { "model": "chroma:block/chroma_banner", "y": 270 },
+    "rotation=13": { "model": "chroma:block/chroma_banner", "y": 292 },
+    "rotation=14": { "model": "chroma:block/chroma_banner", "y": 315 },
+    "rotation=15": { "model": "chroma:block/chroma_banner", "y": 337 }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,part=controller": { "model": "chroma:block/dyeing_table_controller" },
+    "facing=east,part=controller":  { "model": "chroma:block/dyeing_table_controller", "y": 90 },
+    "facing=south,part=controller": { "model": "chroma:block/dyeing_table_controller", "y": 180 },
+    "facing=west,part=controller":  { "model": "chroma:block/dyeing_table_controller", "y": 270 },
+    "facing=north,part=extension":  { "model": "chroma:block/dyeing_table_extension" },
+    "facing=east,part=extension":   { "model": "chroma:block/dyeing_table_extension", "y": 90 },
+    "facing=south,part=extension":  { "model": "chroma:block/dyeing_table_extension", "y": 180 },
+    "facing=west,part=extension":   { "model": "chroma:block/dyeing_table_extension", "y": 270 }
+  }
+}
