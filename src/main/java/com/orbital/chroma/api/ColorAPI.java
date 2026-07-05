@@ -20,21 +20,14 @@ public final class ColorAPI {
 
     private ColorAPI() {}
 
-    public static void registerDyeable(Block block) {
-        REGISTERED_DYEABLE_BLOCKS.add(block);
-    }
+    public static void registerDyeable(Block block) { REGISTERED_DYEABLE_BLOCKS.add(block); }
+    public static boolean isDyeable(Block block)    { return REGISTERED_DYEABLE_BLOCKS.contains(block); }
 
-    public static boolean isDyeable(Block block) {
-        return REGISTERED_DYEABLE_BLOCKS.contains(block);
-    }
-
-    public static void registerDyeableItem(Item item) {
-        DISPLAY_COLOR_ITEMS.add(item);
-    }
+    public static void registerDyeableItem(Item item) { DISPLAY_COLOR_ITEMS.add(item); }
 
     public static void registerCustomDyeableItem(Item item,
-                                                 BiConsumer<ItemStack, Integer> setter,
-                                                 Function<ItemStack, Integer> getter) {
+     BiConsumer<ItemStack, Integer> setter,
+     Function<ItemStack, Integer> getter) {
         CUSTOM_COLOR_SETTERS.put(item, setter);
         CUSTOM_COLOR_GETTERS.put(item, getter);
     }
@@ -58,12 +51,15 @@ public final class ColorAPI {
             return CUSTOM_COLOR_GETTERS.get(item).apply(stack);
         }
         if (stack.hasTag()) {
-            if (stack.getTag().contains("ChromaColor")) {
-                return stack.getTag().getInt("ChromaColor");
+            var tag = stack.getTag();
+            if (tag.contains("ChromaColor")) return tag.getInt("ChromaColor");
+            if (tag.contains("BlockEntityTag")) {
+                var bet = tag.getCompound("BlockEntityTag");
+                if (bet.contains("Color")) return bet.getInt("Color");
             }
-            if (stack.getTag().contains("display")) {
-                var display = stack.getTag().getCompound("display");
-                if (display.contains("color")) return display.getInt("color");
+            if (tag.contains("display")) {
+                var d = tag.getCompound("display");
+                if (d.contains("color")) return d.getInt("color");
             }
         }
         return defaultColor;
@@ -71,5 +67,6 @@ public final class ColorAPI {
 
     public static void setItemColor(ItemStack stack, int rgb) {
         stack.getOrCreateTag().putInt("ChromaColor", rgb);
+        stack.getOrCreateTagElement("BlockEntityTag").putInt("Color", rgb);
     }
 }

@@ -22,8 +22,7 @@ public final class CompatManager {
             if (ModList.get().isLoaded("mcwfurnitures")) MacawsFurnitureCompat.register();
             if (ModList.get().isLoaded("quark")) QuarkCompat.register();
             if (ModList.get().isLoaded("ae2")) AE2Compat.register();
-            //TODO: Add this auto compat scanner
-//            AutoDyeScanner.scan();
+            AutoDyeScanner.scan();
         });
     }
 }
