@@ -23,8 +23,12 @@ public final class ChromaNetwork {
                 SetDyeColorPacket::encode,
                 SetDyeColorPacket::new,
                 SetDyeColorPacket::handle);
+
+        CHANNEL.registerMessage(packetId++, ApplyGradientPacket.class,
+                ApplyGradientPacket::encode,
+                ApplyGradientPacket::new,
+                ApplyGradientPacket::handle);
     }
 
-    private ChromaNetwork() {
-    }
+    private ChromaNetwork() {}
 }

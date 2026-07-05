@@ -1,12 +1,8 @@
 package com.orbital.chroma.api;
 
-import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.color.item.ItemColors;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,9 +14,9 @@ import java.util.function.Function;
 public final class ColorAPI {
 
     private static final Set<Block> REGISTERED_DYEABLE_BLOCKS = new HashSet<>();
-    private static final Set<Item> DISPLAY_COLOR_ITEMS = new HashSet<>();
+    private static final Set<Item>  DISPLAY_COLOR_ITEMS        = new HashSet<>();
     private static final Map<Item, BiConsumer<ItemStack, Integer>> CUSTOM_COLOR_SETTERS = new HashMap<>();
-    private static final Map<Item, Function<ItemStack, Integer>> CUSTOM_COLOR_GETTERS = new HashMap<>();
+    private static final Map<Item, Function<ItemStack, Integer>>   CUSTOM_COLOR_GETTERS = new HashMap<>();
 
     private ColorAPI() {}
 
@@ -44,8 +40,7 @@ public final class ColorAPI {
     }
 
     public static boolean isDyeableItem(Item item) {
-        return DISPLAY_COLOR_ITEMS.contains(item)
-                || CUSTOM_COLOR_SETTERS.containsKey(item);
+        return DISPLAY_COLOR_ITEMS.contains(item) || CUSTOM_COLOR_SETTERS.containsKey(item);
     }
 
     public static void applyColorToItem(ItemStack stack, int rgb) {
@@ -68,9 +63,7 @@ public final class ColorAPI {
             }
             if (stack.getTag().contains("display")) {
                 var display = stack.getTag().getCompound("display");
-                if (display.contains("color")) {
-                    return display.getInt("color");
-                }
+                if (display.contains("color")) return display.getInt("color");
             }
         }
         return defaultColor;
@@ -78,19 +71,5 @@ public final class ColorAPI {
 
     public static void setItemColor(ItemStack stack, int rgb) {
         stack.getOrCreateTag().putInt("ChromaColor", rgb);
-    }
-
-    public static void registerBlockTint(BlockColors blockColors, Block block) {
-        blockColors.register((state, level, pos, tintIndex) -> {
-            if (level != null && pos != null) {
-                BlockEntity be = level.getBlockEntity(pos);
-                if (be instanceof IDyeable dyeable) return dyeable.getColor();
-            }
-            return 0xFFFFFF;
-        }, block);
-    }
-
-    public static void registerItemTint(ItemColors itemColors, Block block, int defaultColor) {
-        itemColors.register((stack, tintIndex) -> getItemColor(stack, defaultColor), block.asItem());
     }
 }

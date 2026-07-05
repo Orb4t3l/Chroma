@@ -42,7 +42,7 @@ public class ChromaCreateCompat {
                 if (item == null) continue;
 
                 DyeColor dyeColor = DyeColor.byName(color, DyeColor.WHITE);
-                int[] components = dyeColor.getTextureDiffuseColors();
+                float[] components = dyeColor.getTextureDiffuseColors();
                 int defaultRgb = ((int)(components[0] * 255) << 16)
                         | ((int)(components[1] * 255) << 8)
                         | (int)(components[2] * 255);
