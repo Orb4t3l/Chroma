@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,9 +20,7 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     }
 
     @Override
-    public int getColor() {
-        return color;
-    }
+    public int getColor() { return color; }
 
     @Override
     public void setColor(int rgb) {
@@ -43,6 +42,13 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
         super.load(tag);
         if (tag.contains("Color")) {
             color = tag.getInt("Color");
+            // Force the client chunk section to re-render so the tint is
+            // applied immediately on placement rather than waiting for an
+            // adjacent block change or chunk reload.
+            if (level != null && level.isClientSide) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(),
+                        Block.UPDATE_IMMEDIATE);
+            }
         }
     }
 

@@ -32,9 +32,9 @@ import javax.annotation.Nullable;
 public class DyeingTableBlock extends BaseEntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
+    public static final EnumProperty<Part> PART  = EnumProperty.create("part", Part.class);
 
-    private static final VoxelShape SHAPE_FULL_BLOCK = Block.box(0, 0, 0, 16, 16, 16);
+    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
 
     public DyeingTableBlock(Properties properties) {
         super(properties);
@@ -50,10 +50,10 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
     @Nullable
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction facing = context.getHorizontalDirection().getOpposite();
-        BlockPos extensionPos = context.getClickedPos().relative(facing.getClockWise());
-        if (!context.getLevel().getBlockState(extensionPos).canBeReplaced(context)) return null;
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        Direction facing = ctx.getHorizontalDirection().getOpposite();
+        if (!ctx.getLevel().getBlockState(ctx.getClickedPos().relative(facing.getClockWise()))
+                .canBeReplaced(ctx)) return null;
         return defaultBlockState().setValue(FACING, facing).setValue(PART, Part.CONTROLLER);
     }
 
@@ -61,80 +61,71 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state,
                             net.minecraft.world.entity.LivingEntity placer,
                             net.minecraft.world.item.ItemStack stack) {
-        Direction facing = state.getValue(FACING);
-        level.setBlock(pos.relative(facing.getClockWise()), state.setValue(PART, Part.EXTENSION), 3);
+        level.setBlock(pos.relative(state.getValue(FACING).getClockWise()),
+                state.setValue(PART, Part.EXTENSION), 3);
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE_FULL_BLOCK;
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return SHAPE;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    public RenderShape getRenderShape(BlockState state) {
+        return state.getValue(PART) == Part.CONTROLLER
+                ? RenderShape.ENTITYBLOCK_ANIMATED
+                : RenderShape.INVISIBLE;
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean moving) {
         if (!state.is(newState.getBlock())) {
             Direction facing = state.getValue(FACING);
-            BlockPos otherPos = state.getValue(PART) == Part.CONTROLLER
+            BlockPos other = state.getValue(PART) == Part.CONTROLLER
                     ? pos.relative(facing.getClockWise())
                     : pos.relative(facing.getCounterClockWise());
-            if (level.getBlockState(otherPos).is(this)) {
-                level.removeBlock(otherPos, false);
-            }
+            if (level.getBlockState(other).is(this)) level.removeBlock(other, false);
         }
-        super.onRemove(state, level, pos, newState, isMoving);
+        super.onRemove(state, level, pos, newState, moving);
     }
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player,
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
-        BlockPos controllerPos = state.getValue(PART) == Part.CONTROLLER
-                ? pos
-                : pos.relative(state.getValue(FACING).getCounterClockWise());
-        BlockEntity be = level.getBlockEntity(controllerPos);
-        if (be instanceof MenuProvider menuProvider) {
+        BlockPos controller = state.getValue(PART) == Part.CONTROLLER
+                ? pos : pos.relative(state.getValue(FACING).getCounterClockWise());
+        BlockEntity be = level.getBlockEntity(controller);
+        if (be instanceof MenuProvider mp) {
             net.minecraftforge.network.NetworkHooks.openScreen(
-                    (net.minecraft.server.level.ServerPlayer) player, menuProvider, controllerPos);
+                    (net.minecraft.server.level.ServerPlayer) player, mp, controller);
         }
         return InteractionResult.CONSUME;
-    }
-
-    @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return state.getValue(PART) == Part.CONTROLLER ? new DyeingTableBlockEntity(pos, state) : null;
+        return state.getValue(PART) == Part.CONTROLLER
+                ? new DyeingTableBlockEntity(pos, state) : null;
     }
 
     @Nullable
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return null;
-    }
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+            Level level, BlockState state, BlockEntityType<T> type) { return null; }
 
     @Override
-    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
-        return false;
-    }
+    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos,
+                                  PathComputationType type) { return false; }
 
     @Override
-    public PushReaction getPistonPushReaction(BlockState state) {
-        return PushReaction.BLOCK;
-    }
+    public PushReaction getPistonPushReaction(BlockState state) { return PushReaction.BLOCK; }
 
     public enum Part implements net.minecraft.util.StringRepresentable {
-        CONTROLLER("controller"),
-        EXTENSION("extension");
-
+        CONTROLLER("controller"), EXTENSION("extension");
         private final String name;
-
-        Part(String name) { this.name = name; }
-
-        @Override
-        public String getSerializedName() { return name; }
+        Part(String n) { name = n; }
+        @Override public String getSerializedName() { return name; }
     }
 }

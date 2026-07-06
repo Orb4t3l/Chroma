@@ -26,8 +26,8 @@ public final class ColorAPI {
     public static void registerDyeableItem(Item item) { DISPLAY_COLOR_ITEMS.add(item); }
 
     public static void registerCustomDyeableItem(Item item,
-     BiConsumer<ItemStack, Integer> setter,
-     Function<ItemStack, Integer> getter) {
+                                                 BiConsumer<ItemStack, Integer> setter,
+                                                 Function<ItemStack, Integer> getter) {
         CUSTOM_COLOR_SETTERS.put(item, setter);
         CUSTOM_COLOR_GETTERS.put(item, getter);
     }
@@ -52,14 +52,14 @@ public final class ColorAPI {
         }
         if (stack.hasTag()) {
             var tag = stack.getTag();
-            if (tag.contains("ChromaColor")) return tag.getInt("ChromaColor");
+            if (tag.contains("ChromaColor"))            return tag.getInt("ChromaColor");
             if (tag.contains("BlockEntityTag")) {
                 var bet = tag.getCompound("BlockEntityTag");
-                if (bet.contains("Color")) return bet.getInt("Color");
+                if (bet.contains("Color"))              return bet.getInt("Color");
             }
             if (tag.contains("display")) {
                 var d = tag.getCompound("display");
-                if (d.contains("color")) return d.getInt("color");
+                if (d.contains("color"))                return d.getInt("color");
             }
         }
         return defaultColor;
