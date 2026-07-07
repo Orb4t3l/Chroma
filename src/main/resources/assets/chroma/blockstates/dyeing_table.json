@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,part=controller": { "model": "chroma:block/dyeing_table" },
+    "facing=east,part=controller":  { "model": "chroma:block/dyeing_table", "y": 90 },
+    "facing=south,part=controller": { "model": "chroma:block/dyeing_table", "y": 180 },
+    "facing=west,part=controller":  { "model": "chroma:block/dyeing_table", "y": 270 },
+    "facing=north,part=extension":  { "model": "minecraft:block/air" },
+    "facing=east,part=extension":   { "model": "minecraft:block/air" },
+    "facing=south,part=extension":  { "model": "minecraft:block/air" },
+    "facing=west,part=extension":   { "model": "minecraft:block/air" }
+  }
+}

@@ -1,8 +1,9 @@
 package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
+import com.orbital.chroma.item.ChromaBannerItem;
+import com.orbital.chroma.item.ChromaDyeingTableItem;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BannerItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -14,7 +15,7 @@ public final class ChromaItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, ChromaMod.MOD_ID);
 
     public static final RegistryObject<Item> DYEING_TABLE = REGISTRY.register("dyeing_table",
-            () -> new BlockItem(ChromaBlocks.DYEING_TABLE.get(), new Item.Properties()));
+            () -> new ChromaDyeingTableItem(ChromaBlocks.DYEING_TABLE.get(), new Item.Properties()));
 
     public static final RegistryObject<Item> CHROMA_WOOL = REGISTRY.register("chroma_wool",
             () -> new BlockItem(ChromaBlocks.CHROMA_WOOL.get(), new Item.Properties()));
@@ -35,7 +36,7 @@ public final class ChromaItems {
             () -> new BlockItem(ChromaBlocks.CHROMA_STAINED_GLASS.get(), new Item.Properties()));
 
     public static final RegistryObject<Item> CHROMA_BANNER = REGISTRY.register("chroma_banner",
-            () -> new BannerItem(ChromaBlocks.CHROMA_BANNER.get(), ChromaBlocks.CHROMA_WALL_BANNER.get(),
+            () -> new ChromaBannerItem(ChromaBlocks.CHROMA_BANNER.get(), ChromaBlocks.CHROMA_WALL_BANNER.get(),
                     new Item.Properties().stacksTo(16)));
 
     private ChromaItems() {}
