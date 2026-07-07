@@ -7,7 +7,7 @@ import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ChromaMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = ChromaMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ChromaCreativeTab {
 
     private ChromaCreativeTab() {}

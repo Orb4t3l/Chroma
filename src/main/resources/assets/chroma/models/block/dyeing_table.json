@@ -7,8 +7,8 @@
 		128
 	],
 	"textures": {
-		"0": "chroma:blockentity/dyeing_table",
-		"particle": "chroma:blockentity/dyeing_table"
+		"0": "chroma:block/dyeing_table",
+		"particle": "chroma:block/dyeing_table"
 	},
 	"elements": [
 		{

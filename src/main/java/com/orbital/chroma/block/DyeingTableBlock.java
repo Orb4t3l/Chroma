@@ -35,10 +35,12 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART  = EnumProperty.create("part", Part.class);
 
+    // Model geometry spans X: -16 to +16 (two blocks wide). Negative X
+    // extends toward -X world space, which is WEST. So the second half of
+    // the model must be placed to the WEST of the controller, i.e. use
+    // getCounterClockWise() (north -> west), NOT getClockWise() (north -> east).
     private static final VoxelShape SHAPE = Shapes.or(
-            // tabletop plate
             Block.box(0, 8, 0, 16, 10, 16),
-            // four corner legs
             Block.box(1, 0, 1, 3, 8, 3),
             Block.box(13, 0, 1, 15, 8, 3),
             Block.box(1, 0, 13, 3, 8, 15),
@@ -61,8 +63,8 @@ public class DyeingTableBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext ctx) {
         Direction facing = ctx.getHorizontalDirection().getOpposite();
-        if (!ctx.getLevel().getBlockState(ctx.getClickedPos().relative(facing.getClockWise()))
-                .canBeReplaced(ctx)) return null;
+        BlockPos extensionPos = ctx.getClickedPos().relative(facing.getCounterClockWise());
+        if (!ctx.getLevel().getBlockState(extensionPos).canBeReplaced(ctx)) return null;
         return defaultBlockState().setValue(FACING, facing).setValue(PART, Part.CONTROLLER);
     }
 
@@ -70,7 +72,8 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state,
                             net.minecraft.world.entity.LivingEntity placer,
                             net.minecraft.world.item.ItemStack stack) {
-        level.setBlock(pos.relative(state.getValue(FACING).getClockWise()),
+        Direction facing = state.getValue(FACING);
+        level.setBlock(pos.relative(facing.getCounterClockWise()),
                 state.setValue(PART, Part.EXTENSION), 3);
     }
 
@@ -91,8 +94,8 @@ public class DyeingTableBlock extends BaseEntityBlock {
         if (!state.is(newState.getBlock())) {
             Direction facing = state.getValue(FACING);
             BlockPos other = state.getValue(PART) == Part.CONTROLLER
-                    ? pos.relative(facing.getClockWise())
-                    : pos.relative(facing.getCounterClockWise());
+                    ? pos.relative(facing.getCounterClockWise())
+                    : pos.relative(facing.getClockWise());
             if (level.getBlockState(other).is(this)) level.removeBlock(other, false);
         }
         super.onRemove(state, level, pos, newState, moving);
@@ -103,7 +106,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
                                  InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide) return InteractionResult.SUCCESS;
         BlockPos controller = state.getValue(PART) == Part.CONTROLLER
-                ? pos : pos.relative(state.getValue(FACING).getCounterClockWise());
+                ? pos : pos.relative(state.getValue(FACING).getClockWise());
         BlockEntity be = level.getBlockEntity(controller);
         if (be instanceof MenuProvider mp) {
             net.minecraftforge.network.NetworkHooks.openScreen(
