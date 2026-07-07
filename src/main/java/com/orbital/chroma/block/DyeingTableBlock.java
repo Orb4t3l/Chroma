@@ -25,6 +25,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
@@ -34,7 +35,15 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART  = EnumProperty.create("part", Part.class);
 
-    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
+    private static final VoxelShape SHAPE = Shapes.or(
+            // tabletop plate
+            Block.box(0, 8, 0, 16, 10, 16),
+            // four corner legs
+            Block.box(1, 0, 1, 3, 8, 3),
+            Block.box(13, 0, 1, 15, 8, 3),
+            Block.box(1, 0, 13, 3, 8, 15),
+            Block.box(13, 0, 13, 15, 8, 15)
+    );
 
     public DyeingTableBlock(Properties properties) {
         super(properties);

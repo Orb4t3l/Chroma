@@ -159,6 +159,8 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         }
     }
 
+    private GradientSlider draggingSlider = null;
+
     @Override
     public boolean mouseClicked(double mx, double my, int btn) {
         if (gradientMode) {
@@ -182,21 +184,35 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
                 return true;
             }
         }
-        if (redSlider.isMouseOver(mx, my))   { setFocused(redSlider);   return redSlider.mouseClicked(mx, my, btn); }
-        if (greenSlider.isMouseOver(mx, my)) { setFocused(greenSlider); return greenSlider.mouseClicked(mx, my, btn); }
-        if (blueSlider.isMouseOver(mx, my))  { setFocused(blueSlider);  return blueSlider.mouseClicked(mx, my, btn); }
+        if (redSlider.isMouseOver(mx, my)) {
+            draggingSlider = redSlider;
+            return redSlider.mouseClicked(mx, my, btn);
+        }
+        if (greenSlider.isMouseOver(mx, my)) {
+            draggingSlider = greenSlider;
+            return greenSlider.mouseClicked(mx, my, btn);
+        }
+        if (blueSlider.isMouseOver(mx, my)) {
+            draggingSlider = blueSlider;
+            return blueSlider.mouseClicked(mx, my, btn);
+        }
+        draggingSlider = null;
         return super.mouseClicked(mx, my, btn);
     }
 
     @Override
     public boolean mouseDragged(double mx, double my, int btn, double dx, double dy) {
-        if (getFocused() instanceof GradientSlider s) return s.mouseDragged(mx, my, btn, dx, dy);
+        if (draggingSlider != null) return draggingSlider.mouseDragged(mx, my, btn, dx, dy);
         return super.mouseDragged(mx, my, btn, dx, dy);
     }
 
     @Override
     public boolean mouseReleased(double mx, double my, int btn) {
-        if (getFocused() instanceof GradientSlider s) return s.mouseReleased(mx, my, btn);
+        if (draggingSlider != null) {
+            boolean result = draggingSlider.mouseReleased(mx, my, btn);
+            draggingSlider = null;
+            return result;
+        }
         return super.mouseReleased(mx, my, btn);
     }
 
