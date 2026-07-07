@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -42,9 +43,6 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
         super.load(tag);
         if (tag.contains("Color")) {
             color = tag.getInt("Color");
-            // Force the client chunk section to re-render so the tint is
-            // applied immediately on placement rather than waiting for an
-            // adjacent block change or chunk reload.
             if (level != null && level.isClientSide) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(),
                         Block.UPDATE_IMMEDIATE);
@@ -62,5 +60,48 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    public static void applyColorFromStack(BlockEntity be, net.minecraft.world.item.ItemStack stack) {
+        if (!(be instanceof IDyeable dyeable)) return;
+        if (!stack.hasTag()) return;
+        CompoundTag tag = stack.getTag();
+        if (tag.contains("BlockEntityTag")) {
+            CompoundTag bet = tag.getCompound("BlockEntityTag");
+            if (bet.contains("Color")) {
+                dyeable.setColor(bet.getInt("Color"));
+                return;
+            }
+        }
+        if (tag.contains("ChromaColor")) {
+            dyeable.setColor(tag.getInt("ChromaColor"));
+        }
+    }
+
+    /**
+     * Reads a color from the placed item's stored NBT (BlockEntityTag.Color
+     * or the fallback root ChromaColor key) and applies it directly to a
+     * freshly-created block entity. Called from Block.setPlacedBy() so the
+     * SERVER's block entity has the correct color before any sync packet is
+     * ever sent to clients — relying purely on vanilla's own
+     * updateCustomBlockEntityTag() timing is not reliable enough, since a
+     * client-predicted placement can otherwise be overwritten by a stale
+     * server confirmation that arrives with the default color.
+     */
+    public static void applyColorFromStack(BlockEntity be, ItemStack stack) {
+        if (!(be instanceof IDyeable dyeable)) return;
+        if (!stack.hasTag()) return;
+        CompoundTag tag = stack.getTag();
+
+        if (tag.contains("BlockEntityTag")) {
+            CompoundTag bet = tag.getCompound("BlockEntityTag");
+            if (bet.contains("Color")) {
+                dyeable.setColor(bet.getInt("Color"));
+                return;
+            }
+        }
+        if (tag.contains("ChromaColor")) {
+            dyeable.setColor(tag.getInt("ChromaColor"));
+        }
     }
 }

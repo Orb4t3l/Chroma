@@ -44,6 +44,8 @@ public class ChromaBannerBlockEntity extends BannerBlockEntity {
         super.load(tag);
         if (tag.contains("ChromaColor")) {
             chromaColor = tag.getInt("ChromaColor");
+        } else if (tag.contains("Color")) {
+            chromaColor = tag.getInt("Color");
         }
     }
 

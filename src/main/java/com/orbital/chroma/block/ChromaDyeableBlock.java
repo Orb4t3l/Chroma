@@ -1,7 +1,11 @@
 package com.orbital.chroma.block;
 
+import com.orbital.chroma.api.DyeableBlockEntity;
 import com.orbital.chroma.blockentity.ChromaDyeableBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -27,10 +31,17 @@ public class ChromaDyeableBlock extends BaseEntityBlock {
         return new ChromaDyeableBlockEntity(beType.get(), pos, state);
     }
 
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null) DyeableBlockEntity.applyColorFromStack(be, stack);
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            net.minecraft.world.level.Level level, BlockState state, BlockEntityType<T> type) {
+            Level level, BlockState state, BlockEntityType<T> type) {
         return null;
     }
 
