@@ -36,6 +36,7 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ChromaBlockEntities.CHROMA_BANNER.get(), ChromaBannerRenderer::new);
+        event.registerBlockEntityRenderer(ChromaBlockEntities.DYEING_TABLE.get(), DyeingTableRenderer::new);
     }
 
     @SubscribeEvent
