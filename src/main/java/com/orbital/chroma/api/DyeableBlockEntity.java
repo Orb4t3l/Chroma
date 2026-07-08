@@ -78,30 +78,4 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
         }
     }
 
-    /**
-     * Reads a color from the placed item's stored NBT (BlockEntityTag.Color
-     * or the fallback root ChromaColor key) and applies it directly to a
-     * freshly-created block entity. Called from Block.setPlacedBy() so the
-     * SERVER's block entity has the correct color before any sync packet is
-     * ever sent to clients — relying purely on vanilla's own
-     * updateCustomBlockEntityTag() timing is not reliable enough, since a
-     * client-predicted placement can otherwise be overwritten by a stale
-     * server confirmation that arrives with the default color.
-     */
-    public static void applyColorFromStack(BlockEntity be, ItemStack stack) {
-        if (!(be instanceof IDyeable dyeable)) return;
-        if (!stack.hasTag()) return;
-        CompoundTag tag = stack.getTag();
-
-        if (tag.contains("BlockEntityTag")) {
-            CompoundTag bet = tag.getCompound("BlockEntityTag");
-            if (bet.contains("Color")) {
-                dyeable.setColor(bet.getInt("Color"));
-                return;
-            }
-        }
-        if (tag.contains("ChromaColor")) {
-            dyeable.setColor(tag.getInt("ChromaColor"));
-        }
-    }
 }
