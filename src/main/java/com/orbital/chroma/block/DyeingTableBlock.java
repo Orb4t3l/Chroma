@@ -84,7 +84,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
+        return state.getValue(PART) == Part.CONTROLLER ? RenderShape.MODEL : RenderShape.INVISIBLE;
     }
 
     @Override

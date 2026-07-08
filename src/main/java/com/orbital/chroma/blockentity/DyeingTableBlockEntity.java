@@ -139,22 +139,33 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         setChanged();
     }
 
+    private static final int MAX_GRADIENT_BANDS = 16;
+
     public List<ItemStack> applyGradient(int colorA, int colorB) {
         ItemStack stack = itemHandler.getStackInSlot(0);
         if (stack.isEmpty()) return List.of();
 
-        int count = stack.getCount();
-        List<ItemStack> results = new ArrayList<>(count);
+        int totalCount = stack.getCount();
+        int bands = Math.min(totalCount, MAX_GRADIENT_BANDS);
+        List<ItemStack> results = new ArrayList<>(bands);
 
         int rA = (colorA >> 16) & 0xFF, gA = (colorA >> 8) & 0xFF, bA = colorA & 0xFF;
         int rB = (colorB >> 16) & 0xFF, gB = (colorB >> 8) & 0xFF, bB = colorB & 0xFF;
 
-        for (int i = 0; i < count; i++) {
-            float t = count == 1 ? 0f : (float) i / (count - 1);
+        int baseCountPerBand = totalCount / bands;
+        int remainder = totalCount % bands;
+
+        for (int i = 0; i < bands; i++) {
+            float t = bands == 1 ? 0f : (float) i / (bands - 1);
             int r = Math.round(rA + (rB - rA) * t);
             int g = Math.round(gA + (gB - gA) * t);
             int b = Math.round(bA + (bB - bA) * t);
-            results.add(coloredCopy(stack.copyWithCount(1), (r << 16) | (g << 8) | b));
+            int color = (r << 16) | (g << 8) | b;
+
+            int countForBand = baseCountPerBand + (i < remainder ? 1 : 0);
+            if (countForBand <= 0) continue;
+
+            results.add(coloredCopy(stack.copyWithCount(countForBand), color));
         }
 
         itemHandler.setStackInSlot(0, ItemStack.EMPTY);

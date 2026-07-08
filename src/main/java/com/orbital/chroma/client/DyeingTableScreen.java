@@ -222,7 +222,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
         updatingSlider = true;
         hexBox.setValue(String.format("%06X", color));
         updatingSlider = false;
-        if (!gradientMode) ChromaNetwork.CHANNEL.sendToServer(new SetDyeColorPacket(color));
+        if (!gradientMode || editingA) ChromaNetwork.CHANNEL.sendToServer(new SetDyeColorPacket(color));
     }
 
     private void onHexChanged(String value) {
@@ -239,7 +239,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
             blueSlider.setChannel(blue);
             updatingHex = false;
             if (gradientMode) { if (editingA) colorA = color; else colorB = color; }
-            else ChromaNetwork.CHANNEL.sendToServer(new SetDyeColorPacket(color));
+            if (!gradientMode || editingA) ChromaNetwork.CHANNEL.sendToServer(new SetDyeColorPacket(color));
         } catch (NumberFormatException ignored) {}
     }
 

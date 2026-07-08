@@ -2,7 +2,6 @@ package com.orbital.chroma.registry;
 
 import com.orbital.chroma.ChromaMod;
 import com.orbital.chroma.item.ChromaBannerItem;
-import com.orbital.chroma.item.ChromaDyeingTableItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
@@ -15,7 +14,7 @@ public final class ChromaItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, ChromaMod.MOD_ID);
 
     public static final RegistryObject<Item> DYEING_TABLE = REGISTRY.register("dyeing_table",
-            () -> new ChromaDyeingTableItem(ChromaBlocks.DYEING_TABLE.get(), new Item.Properties()));
+            () -> new BlockItem(ChromaBlocks.DYEING_TABLE.get(), new Item.Properties()));
 
     public static final RegistryObject<Item> CHROMA_WOOL = REGISTRY.register("chroma_wool",
             () -> new BlockItem(ChromaBlocks.CHROMA_WOOL.get(), new Item.Properties()));
