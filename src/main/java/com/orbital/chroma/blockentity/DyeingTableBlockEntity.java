@@ -97,7 +97,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             return copy;
         }
         if (original.is(ItemTags.BANNERS)) {
-            ItemStack banner = new ItemStack(ChromaItems.CHROMA_BANNER.get());
+            ItemStack banner = new ItemStack(ChromaItems.CHROMA_BANNER.get(), original.getCount());
             if (original.hasTag()) banner.setTag(original.getTag().copy());
             ColorAPI.setItemColor(banner, color);
             return banner;
@@ -115,7 +115,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             }
             Item target = getConversionTarget(bi.getBlock());
             if (target != null) {
-                ItemStack converted = new ItemStack(target);
+                ItemStack converted = new ItemStack(target, original.getCount());
                 ColorAPI.setItemColor(converted, color);
                 return converted;
             }

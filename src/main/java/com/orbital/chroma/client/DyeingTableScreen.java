@@ -26,33 +26,35 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     private static final int SLIDER_X   = 12;
     private static final int SLIDER_W   = 152;
     private static final int SLIDER_H   = 14;
-    private static final int SLIDER_R_Y = 52;
-    private static final int SLIDER_G_Y = 70;
-    private static final int SLIDER_B_Y = 88;
+    private static final int SLIDER_R_Y = 40;
+    private static final int SLIDER_G_Y = 58;
+    private static final int SLIDER_B_Y = 76;
 
-    private static final int MODE_Y    = 35;
+    private static final int MODE_Y    = 23;
     private static final int MODE_W    = 72;
     private static final int MODE_H    = 12;
 
-    private static final int SWATCH_Y    = 35;
+    private static final int SWATCH_Y    = 23;
     private static final int SWATCH_SIZE = 12;
     private static final int SWATCH_A_X  = 92;
     private static final int SWATCH_B_X  = 110;
 
     private static final int STRIP_X = 12;
-    private static final int STRIP_Y = 107;
+    private static final int STRIP_Y = 95;
     private static final int STRIP_W = 152;
     private static final int STRIP_H = 12;
 
     private static final int PREVIEW_X = 12;
-    private static final int PREVIEW_Y = 107;
+    private static final int PREVIEW_Y = 95;
     private static final int PREVIEW_W = 74;
     private static final int PREVIEW_H = 12;
 
     private static final int HEX_X = 98;
-    private static final int HEX_Y = 107;
+    private static final int HEX_Y = 95;
     private static final int HEX_W = 66;
     private static final int HEX_H = 12;
+
+    private static final int LABEL_OFFSET_X = 10;
 
     private GradientSlider redSlider;
     private GradientSlider greenSlider;
@@ -293,9 +295,9 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     protected void renderLabels(GuiGraphics g, int mx, int my) {
         g.drawString(font, title, 8, 6, 0x404040, false);
         g.drawString(font, playerInventoryTitle, 8, inventoryLabelY, 0x404040, false);
-        g.drawString(font, "R", SLIDER_X - 1, SLIDER_R_Y + 3, 0xBB2222, false);
-        g.drawString(font, "G", SLIDER_X - 1, SLIDER_G_Y + 3, 0x22AA22, false);
-        g.drawString(font, "B", SLIDER_X - 1, SLIDER_B_Y + 3, 0x2222BB, false);
+        g.drawString(font, "R", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_R_Y + 3, 0xBB2222, false);
+        g.drawString(font, "G", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_G_Y + 3, 0x22AA22, false);
+        g.drawString(font, "B", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_B_Y + 3, 0x2222BB, false);
         if (gradientMode) {
             g.drawString(font, editingA ? "▶A" : "▶B",
                     SWATCH_B_X + SWATCH_SIZE + 3, SWATCH_Y + 2, 0xAAAAAA, false);
