@@ -84,7 +84,7 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-    
+
     public static void applyColorFromStack(BlockEntity be, ItemStack stack) {
         if (!(be instanceof IDyeable dyeable)) return;
         if (!stack.hasTag()) return;

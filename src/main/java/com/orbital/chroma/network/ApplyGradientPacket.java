@@ -3,10 +3,8 @@ package com.orbital.chroma.network;
 import com.orbital.chroma.menu.DyeingTableMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public class ApplyGradientPacket {
@@ -36,12 +34,7 @@ public class ApplyGradientPacket {
             if (player == null) return;
             if (!(player.containerMenu instanceof DyeingTableMenu menu)) return;
 
-            List<ItemStack> results = menu.blockEntity.applyGradient(colorA, colorB);
-            for (ItemStack result : results) {
-                if (!player.addItem(result)) {
-                    player.drop(result, false);
-                }
-            }
+            menu.blockEntity.applyGradient(colorA, colorB);
         });
         context.setPacketHandled(true);
     }

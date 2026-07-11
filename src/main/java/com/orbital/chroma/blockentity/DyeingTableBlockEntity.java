@@ -31,8 +31,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider {
 
@@ -139,38 +137,24 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         setChanged();
     }
 
-    private static final int MAX_GRADIENT_BANDS = 16;
-
-    public List<ItemStack> applyGradient(int colorA, int colorB) {
+    public void applyGradient(int colorA, int colorB) {
         ItemStack stack = itemHandler.getStackInSlot(0);
-        if (stack.isEmpty()) return List.of();
+        if (stack.isEmpty()) return;
 
-        int totalCount = stack.getCount();
-        int bands = Math.min(totalCount, MAX_GRADIENT_BANDS);
-        List<ItemStack> results = new ArrayList<>(bands);
+        ItemStack result = coloredCopy(stack, colorA);
+        result.setCount(stack.getCount());
 
-        int rA = (colorA >> 16) & 0xFF, gA = (colorA >> 8) & 0xFF, bA = colorA & 0xFF;
-        int rB = (colorB >> 16) & 0xFF, gB = (colorB >> 8) & 0xFF, bB = colorB & 0xFF;
-
-        int baseCountPerBand = totalCount / bands;
-        int remainder = totalCount % bands;
-
-        for (int i = 0; i < bands; i++) {
-            float t = bands == 1 ? 0f : (float) i / (bands - 1);
-            int r = Math.round(rA + (rB - rA) * t);
-            int g = Math.round(gA + (gB - gA) * t);
-            int b = Math.round(bA + (bB - bA) * t);
-            int color = (r << 16) | (g << 8) | b;
-
-            int countForBand = baseCountPerBand + (i < remainder ? 1 : 0);
-            if (countForBand <= 0) continue;
-
-            results.add(coloredCopy(stack.copyWithCount(countForBand), color));
+        if (result.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
+            var display = result.getOrCreateTagElement("display");
+            display.putInt("color", colorA);
+        } else if (ColorAPI.isDyeableItem(result.getItem())) {
+            ColorAPI.applyColorToItem(result, colorA);
+        } else {
+            ColorAPI.setItemGradient(result, colorA, colorB);
         }
 
-        itemHandler.setStackInSlot(0, ItemStack.EMPTY);
+        itemHandler.setStackInSlot(0, result);
         setChanged();
-        return results;
     }
 
     public ItemStackHandler getItemHandler() { return itemHandler; }

@@ -38,6 +38,15 @@ public final class ClientSetup {
         event.registerBlockEntityRenderer(ChromaBlockEntities.CHROMA_BANNER.get(), ChromaBannerRenderer::new);
     }
 
+    private static int interpolate(int colorStart, int colorEnd, int tintIndex) {
+        if (colorEnd == -1 || tintIndex < 0 || tintIndex > 3) return colorStart;
+        float t = tintIndex / 3.0f;
+        int r = Math.round(((colorStart >> 16) & 0xFF) + (((colorEnd >> 16) & 0xFF) - ((colorStart >> 16) & 0xFF)) * t);
+        int g = Math.round(((colorStart >> 8)  & 0xFF) + (((colorEnd >> 8)  & 0xFF) - ((colorStart >> 8)  & 0xFF)) * t);
+        int b = Math.round(( colorStart        & 0xFF) + (( colorEnd        & 0xFF) - ( colorStart        & 0xFF)) * t);
+        return (r << 16) | (g << 8) | b;
+    }
+
     @SubscribeEvent
     public static void onRegisterBlockColors(RegisterColorHandlersEvent.Block event) {
         Block[] dyeableBlocks = {
@@ -52,7 +61,9 @@ public final class ClientSetup {
         event.register((state, level, pos, tintIndex) -> {
             if (level != null && pos != null) {
                 BlockEntity be = level.getBlockEntity(pos);
-                if (be instanceof IDyeable dyeable) return dyeable.getColor();
+                if (be instanceof IDyeable dyeable) {
+                    return interpolate(dyeable.getColor(), dyeable.getGradientEndColor(), tintIndex);
+                }
             }
             return 0xFFFFFF;
         }, dyeableBlocks);
@@ -70,10 +81,11 @@ public final class ClientSetup {
                 ChromaItems.CHROMA_BANNER.get()
         };
 
-        event.register((stack, tintIndex) ->
-                        stack.hasTag() && stack.getTag().contains("ChromaColor")
-                                ? stack.getTag().getInt("ChromaColor")
-                                : 0xFFFFFF,
-                dyeableItems);
+        event.register((stack, tintIndex) -> {
+            int colorStart = stack.hasTag() && stack.getTag().contains("ChromaColor")
+                    ? stack.getTag().getInt("ChromaColor") : 0xFFFFFF;
+            int colorEnd = com.orbital.chroma.api.ColorAPI.getItemGradientEnd(stack);
+            return interpolate(colorStart, colorEnd, tintIndex);
+        }, dyeableItems);
     }
 }
