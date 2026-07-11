@@ -1,8 +1,8 @@
 {
   "variants": {
-    "facing=north": { "model": "chroma:block/chroma_wall_banner" },
-    "facing=east":  { "model": "chroma:block/chroma_wall_banner", "y": 90 },
-    "facing=south": { "model": "chroma:block/chroma_wall_banner", "y": 180 },
-    "facing=west":  { "model": "chroma:block/chroma_wall_banner", "y": 270 }
+    "facing=north": { "model": "chroma:block/chroma_banner_wall" },
+    "facing=east":  { "model": "chroma:block/chroma_banner_wall", "y": 90 },
+    "facing=south": { "model": "chroma:block/chroma_banner_wall", "y": 180 },
+    "facing=west":  { "model": "chroma:block/chroma_banner_wall", "y": 270 }
   }
 }

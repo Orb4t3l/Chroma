@@ -2,7 +2,6 @@ package com.orbital.chroma.client;
 
 import com.orbital.chroma.ChromaMod;
 import com.orbital.chroma.api.IDyeable;
-import com.orbital.chroma.registry.ChromaBlockEntities;
 import com.orbital.chroma.registry.ChromaBlocks;
 import com.orbital.chroma.registry.ChromaItems;
 import com.orbital.chroma.registry.ChromaMenus;
@@ -13,7 +12,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -33,14 +31,9 @@ public final class ClientSetup {
         });
     }
 
-    @SubscribeEvent
-    public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(ChromaBlockEntities.CHROMA_BANNER.get(), ChromaBannerRenderer::new);
-    }
-
     private static int interpolate(int colorStart, int colorEnd, int tintIndex) {
-        if (colorEnd == -1 || tintIndex < 0 || tintIndex > 3) return colorStart;
-        float t = tintIndex / 3.0f;
+        if (colorEnd == -1 || tintIndex < 0 || tintIndex > 15) return colorStart;
+        float t = tintIndex / 15.0f;
         int r = Math.round(((colorStart >> 16) & 0xFF) + (((colorEnd >> 16) & 0xFF) - ((colorStart >> 16) & 0xFF)) * t);
         int g = Math.round(((colorStart >> 8)  & 0xFF) + (((colorEnd >> 8)  & 0xFF) - ((colorStart >> 8)  & 0xFF)) * t);
         int b = Math.round(( colorStart        & 0xFF) + (( colorEnd        & 0xFF) - ( colorStart        & 0xFF)) * t);
@@ -55,7 +48,9 @@ public final class ClientSetup {
                 ChromaBlocks.CHROMA_CONCRETE.get(),
                 ChromaBlocks.CHROMA_CONCRETE_POWDER.get(),
                 ChromaBlocks.CHROMA_TERRACOTTA.get(),
-                ChromaBlocks.CHROMA_STAINED_GLASS.get()
+                ChromaBlocks.CHROMA_STAINED_GLASS.get(),
+                ChromaBlocks.CHROMA_BANNER.get(),
+                ChromaBlocks.CHROMA_WALL_BANNER.get()
         };
 
         event.register((state, level, pos, tintIndex) -> {
