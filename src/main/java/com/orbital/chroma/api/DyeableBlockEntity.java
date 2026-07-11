@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class DyeableBlockEntity extends BlockEntity implements IDyeable {
 
     private int color;
+    private int gradientEnd = -1;
 
     public DyeableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int defaultColor) {
         super(type, pos, state);
@@ -27,6 +28,26 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     public void setColor(int rgb) {
         this.color = rgb;
         setChanged();
+        syncToClient();
+    }
+
+    @Override
+    public int getGradientEndColor() { return gradientEnd; }
+
+    @Override
+    public void setGradientEndColor(int rgb) {
+        this.gradientEnd = rgb;
+        setChanged();
+        syncToClient();
+    }
+
+    public void clearGradient() {
+        this.gradientEnd = -1;
+        setChanged();
+        syncToClient();
+    }
+
+    private void syncToClient() {
         if (level != null && !level.isClientSide) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
         }
@@ -36,6 +57,7 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     public void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Color", color);
+        tag.putInt("GradientEnd", gradientEnd);
     }
 
     @Override
@@ -43,10 +65,10 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
         super.load(tag);
         if (tag.contains("Color")) {
             color = tag.getInt("Color");
-            if (level != null && level.isClientSide) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(),
-                        Block.UPDATE_IMMEDIATE);
-            }
+        }
+        gradientEnd = tag.contains("GradientEnd") ? tag.getInt("GradientEnd") : -1;
+        if (level != null && level.isClientSide) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_IMMEDIATE);
         }
     }
 
@@ -54,6 +76,7 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     public CompoundTag getUpdateTag() {
         CompoundTag tag = super.getUpdateTag();
         tag.putInt("Color", color);
+        tag.putInt("GradientEnd", gradientEnd);
         return tag;
     }
 
@@ -61,21 +84,28 @@ public class DyeableBlockEntity extends BlockEntity implements IDyeable {
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
-    public static void applyColorFromStack(BlockEntity be, net.minecraft.world.item.ItemStack stack) {
+    
+    public static void applyColorFromStack(BlockEntity be, ItemStack stack) {
         if (!(be instanceof IDyeable dyeable)) return;
         if (!stack.hasTag()) return;
         CompoundTag tag = stack.getTag();
+
+        int color = -1;
+        int gradientEnd = -1;
+
         if (tag.contains("BlockEntityTag")) {
             CompoundTag bet = tag.getCompound("BlockEntityTag");
-            if (bet.contains("Color")) {
-                dyeable.setColor(bet.getInt("Color"));
-                return;
-            }
+            if (bet.contains("Color")) color = bet.getInt("Color");
+            if (bet.contains("GradientEnd")) gradientEnd = bet.getInt("GradientEnd");
         }
-        if (tag.contains("ChromaColor")) {
-            dyeable.setColor(tag.getInt("ChromaColor"));
+        if (color == -1 && tag.contains("ChromaColor")) {
+            color = tag.getInt("ChromaColor");
         }
-    }
+        if (gradientEnd == -1 && tag.contains("ChromaGradientEnd")) {
+            gradientEnd = tag.getInt("ChromaGradientEnd");
+        }
 
+        if (color != -1) dyeable.setColor(color);
+        dyeable.setGradientEndColor(gradientEnd);
+    }
 }

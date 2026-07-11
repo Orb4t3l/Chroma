@@ -8,6 +8,17 @@ public interface IDyeable {
 
     void setColor(int rgb);
 
+    default int getGradientEndColor() {
+        return -1;
+    }
+
+    default void setGradientEndColor(int rgb) {
+    }
+
+    default boolean hasGradient() {
+        return getGradientEndColor() != -1;
+    }
+
     default int getDefaultColor() {
         return 0xFFFFFF;
     }

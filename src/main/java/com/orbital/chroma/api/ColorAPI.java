@@ -68,5 +68,33 @@ public final class ColorAPI {
     public static void setItemColor(ItemStack stack, int rgb) {
         stack.getOrCreateTag().putInt("ChromaColor", rgb);
         stack.getOrCreateTagElement("BlockEntityTag").putInt("Color", rgb);
+        clearItemGradient(stack);
+    }
+
+    public static void setItemGradient(ItemStack stack, int colorA, int colorB) {
+        stack.getOrCreateTag().putInt("ChromaColor", colorA);
+        stack.getOrCreateTag().putInt("ChromaGradientEnd", colorB);
+        var bet = stack.getOrCreateTagElement("BlockEntityTag");
+        bet.putInt("Color", colorA);
+        bet.putInt("GradientEnd", colorB);
+    }
+
+    public static void clearItemGradient(ItemStack stack) {
+        if (!stack.hasTag()) return;
+        stack.getTag().remove("ChromaGradientEnd");
+        if (stack.getTag().contains("BlockEntityTag")) {
+            stack.getTag().getCompound("BlockEntityTag").remove("GradientEnd");
+        }
+    }
+
+    public static int getItemGradientEnd(ItemStack stack) {
+        if (!stack.hasTag()) return -1;
+        var tag = stack.getTag();
+        if (tag.contains("ChromaGradientEnd")) return tag.getInt("ChromaGradientEnd");
+        if (tag.contains("BlockEntityTag")) {
+            var bet = tag.getCompound("BlockEntityTag");
+            if (bet.contains("GradientEnd")) return bet.getInt("GradientEnd");
+        }
+        return -1;
     }
 }
