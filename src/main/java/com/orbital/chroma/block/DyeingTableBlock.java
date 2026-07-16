@@ -35,10 +35,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART  = EnumProperty.create("part", Part.class);
 
-    // Model geometry spans X: -16 to +16 (two blocks wide). Negative X
-    // extends toward -X world space, which is WEST. So the second half of
-    // the model must be placed to the WEST of the controller, i.e. use
-    // getCounterClockWise() (north -> west), NOT getClockWise() (north -> east).
+
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(0, 8, 0, 16, 10, 16),
             Block.box(1, 0, 1, 3, 8, 3),
