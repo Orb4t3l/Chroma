@@ -24,8 +24,8 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
             new ResourceLocation("chroma", "textures/gui/dyeing_table.png");
 
     private static final int SLIDER_X   = 12;
-    private static final int SLIDER_W   = 152;
-    private static final int SLIDER_H   = 14;
+    private static final int SLIDER_W   = 124;
+    private static final int SLIDER_H   = 10;
     private static final int SLIDER_R_Y = 40;
     private static final int SLIDER_G_Y = 58;
     private static final int SLIDER_B_Y = 76;
@@ -54,7 +54,8 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     private static final int HEX_W = 66;
     private static final int HEX_H = 12;
 
-    private static final int LABEL_OFFSET_X = 10;
+    private static final int LABEL_OFFSET_X = 6;
+    private static final int COUNTER_OFFSET_X = 3;
 
     private GradientSlider redSlider;
     private GradientSlider greenSlider;
@@ -295,9 +296,9 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     protected void renderLabels(GuiGraphics g, int mx, int my) {
         g.drawString(font, title, 8, 6, 0x404040, false);
         g.drawString(font, playerInventoryTitle, 8, inventoryLabelY, 0x404040, false);
-        g.drawString(font, "R", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_R_Y + 3, 0xBB2222, false);
-        g.drawString(font, "G", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_G_Y + 3, 0x22AA22, false);
-        g.drawString(font, "B", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_B_Y + 3, 0x2222BB, false);
+        g.drawString(font, "R", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_R_Y + 1, 0xBB2222, false);
+        g.drawString(font, "G", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_G_Y + 1, 0x22AA22, false);
+        g.drawString(font, "B", SLIDER_X - LABEL_OFFSET_X - 1, SLIDER_B_Y + 1, 0x2222BB, false);
         if (gradientMode) {
             g.drawString(font, editingA ? "▶A" : "▶B",
                     SWATCH_B_X + SWATCH_SIZE + 3, SWATCH_Y + 2, 0xAAAAAA, false);
@@ -347,7 +348,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
             g.fill(hx, y - 1, hx + 6, y + h + 1, 0xFFFFFFFF);
             g.fill(hx + 1, y, hx + 5, y + h, 0xFF888888);
             Font f = Minecraft.getInstance().font;
-            g.drawString(f, String.valueOf(getChannelValue()), x + w + 4, y + (h - 8) / 2, 0xFF404040, false);
+            g.drawString(f, String.valueOf(getChannelValue()), x + w + COUNTER_OFFSET_X, y + (h - 8) / 2, 0xFF404040, false);
         }
     }
 }
