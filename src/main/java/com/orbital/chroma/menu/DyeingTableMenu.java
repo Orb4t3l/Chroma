@@ -15,7 +15,7 @@ import net.minecraftforge.items.SlotItemHandler;
 public class DyeingTableMenu extends AbstractContainerMenu {
 
     public static final int SLOT_X = 80;
-    public static final int SLOT_Y = 7;
+    public static final int SLOT_Y = 5;
     public static final int INV_ROW_Y = 122;
     public static final int HOTBAR_Y = 180;
 

@@ -8,6 +8,11 @@
   "item.chroma.chroma_terracotta": "Chroma Terracotta",
   "item.chroma.chroma_tained_glass": "Chroma Stained Glass",
   "item.chroma.chroma_wool": "Chroma Wool",
-  "block.chroma.chroma_wool": "Chroma Wool"
-
+  "block.chroma.chroma_wool": "Chroma Wool",
+  "block.chroma.chroma_banner": "Chroma Banner",
+  "block.chroma.chroma_carpet": "Chroma Carpet",
+  "block.chroma.chroma_concrete": "Chroma Concrete",
+  "block.chroma.chroma_concrete_powder": "Chroma Concrete Powder",
+  "block.chroma.chroma_terracotta": "Chroma Terracotta",
+  "block.chroma.chroma_tained_glass": "Chroma Stained Glass"
 }

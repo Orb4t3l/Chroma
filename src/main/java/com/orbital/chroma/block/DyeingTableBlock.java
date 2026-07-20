@@ -36,13 +36,23 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public static final EnumProperty<Part> PART  = EnumProperty.create("part", Part.class);
 
 
-    private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(0, 8, 0, 16, 10, 16),
-            Block.box(1, 0, 1, 3, 8, 3),
-            Block.box(13, 0, 1, 15, 8, 3),
-            Block.box(1, 0, 13, 3, 8, 15),
-            Block.box(13, 0, 13, 15, 8, 15)
-    );
+    private static final VoxelShape TABLE_TOP = Block.box(0, 8, 0, 16, 10, 16);
+    
+    // Leg shapes for each corner
+    private static final VoxelShape LEG_NW = Block.box(0, 0, 0, 2, 8, 2);
+    private static final VoxelShape LEG_NE = Block.box(14, 0, 0, 16, 8, 2);
+    private static final VoxelShape LEG_SW = Block.box(0, 0, 14, 2, 8, 16);
+    private static final VoxelShape LEG_SE = Block.box(14, 0, 14, 16, 8, 16);
+
+    private static final VoxelShape SHAPE_CONTROLLER_NORTH = Shapes.or(TABLE_TOP, LEG_NE, LEG_SE);
+    private static final VoxelShape SHAPE_CONTROLLER_EAST = Shapes.or(TABLE_TOP, LEG_SE, LEG_SW);
+    private static final VoxelShape SHAPE_CONTROLLER_SOUTH = Shapes.or(TABLE_TOP, LEG_SW, LEG_NW);
+    private static final VoxelShape SHAPE_CONTROLLER_WEST = Shapes.or(TABLE_TOP, LEG_NW, LEG_NE);
+
+    private static final VoxelShape SHAPE_EXTENSION_NORTH = Shapes.or(TABLE_TOP, LEG_NW, LEG_SW);
+    private static final VoxelShape SHAPE_EXTENSION_EAST = Shapes.or(TABLE_TOP, LEG_NE, LEG_NW);
+    private static final VoxelShape SHAPE_EXTENSION_SOUTH = Shapes.or(TABLE_TOP, LEG_SE, LEG_NE);
+    private static final VoxelShape SHAPE_EXTENSION_WEST = Shapes.or(TABLE_TOP, LEG_SW, LEG_SE);
 
     public DyeingTableBlock(Properties properties) {
         super(properties);
@@ -76,7 +86,26 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return SHAPE;
+        Direction facing = state.getValue(FACING);
+        Part part = state.getValue(PART);
+        
+        if (part == Part.CONTROLLER) {
+            return switch (facing) {
+                case NORTH -> SHAPE_CONTROLLER_NORTH;
+                case EAST -> SHAPE_CONTROLLER_EAST;
+                case SOUTH -> SHAPE_CONTROLLER_SOUTH;
+                case WEST -> SHAPE_CONTROLLER_WEST;
+                default -> TABLE_TOP;
+            };
+        } else {
+            return switch (facing) {
+                case NORTH -> SHAPE_EXTENSION_NORTH;
+                case EAST -> SHAPE_EXTENSION_EAST;
+                case SOUTH -> SHAPE_EXTENSION_SOUTH;
+                case WEST -> SHAPE_EXTENSION_WEST;
+                default -> TABLE_TOP;
+            };
+        }
     }
 
     @Override
