@@ -2,7 +2,6 @@ package com.orbital.chroma;
 
 import com.orbital.chroma.registry.ChromaItems;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -25,6 +24,7 @@ public final class ChromaCreativeTab {
             event.accept(ChromaItems.CHROMA_CONCRETE_POWDER.get());
             event.accept(ChromaItems.CHROMA_TERRACOTTA.get());
             event.accept(ChromaItems.CHROMA_STAINED_GLASS.get());
+            event.accept(ChromaItems.CHROMA_STAINED_GLASS_PANE.get());
             event.accept(ChromaItems.CHROMA_BANNER.get());
         }
     }

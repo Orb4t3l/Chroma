@@ -34,9 +34,12 @@ public final class ChromaItems {
     public static final RegistryObject<Item> CHROMA_STAINED_GLASS = REGISTRY.register("chroma_stained_glass",
             () -> new BlockItem(ChromaBlocks.CHROMA_STAINED_GLASS.get(), new Item.Properties()));
 
+    public static final RegistryObject<Item> CHROMA_STAINED_GLASS_PANE = REGISTRY.register("chroma_stained_glass_pane",
+            () -> new BlockItem(ChromaBlocks.CHROMA_STAINED_GLASS_PANE.get(), new Item.Properties()));
+
     public static final RegistryObject<Item> CHROMA_BANNER = REGISTRY.register("chroma_banner",
             () -> new ChromaBannerItem(ChromaBlocks.CHROMA_BANNER.get(), ChromaBlocks.CHROMA_WALL_BANNER.get(),
-                    new Item.Properties().stacksTo(16)));
+                    new Item.Properties()));
 
     private ChromaItems() {}
 }

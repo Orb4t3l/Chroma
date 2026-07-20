@@ -1,6 +1,7 @@
 package com.orbital.chroma.client;
 
 import com.orbital.chroma.ChromaMod;
+import com.orbital.chroma.api.ColorAPI;
 import com.orbital.chroma.api.IDyeable;
 import com.orbital.chroma.registry.ChromaBlocks;
 import com.orbital.chroma.registry.ChromaItems;
@@ -28,6 +29,7 @@ public final class ClientSetup {
         event.enqueueWork(() -> {
             MenuScreens.register(ChromaMenus.DYEING_TABLE.get(), DyeingTableScreen::new);
             ItemBlockRenderTypes.setRenderLayer(ChromaBlocks.CHROMA_STAINED_GLASS.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ChromaBlocks.CHROMA_STAINED_GLASS_PANE.get(), RenderType.translucent());
         });
     }
 
@@ -49,6 +51,7 @@ public final class ClientSetup {
                 ChromaBlocks.CHROMA_CONCRETE_POWDER.get(),
                 ChromaBlocks.CHROMA_TERRACOTTA.get(),
                 ChromaBlocks.CHROMA_STAINED_GLASS.get(),
+                ChromaBlocks.CHROMA_STAINED_GLASS_PANE.get(),
                 ChromaBlocks.CHROMA_BANNER.get(),
                 ChromaBlocks.CHROMA_WALL_BANNER.get()
         };
@@ -73,13 +76,14 @@ public final class ClientSetup {
                 ChromaItems.CHROMA_CONCRETE_POWDER.get(),
                 ChromaItems.CHROMA_TERRACOTTA.get(),
                 ChromaItems.CHROMA_STAINED_GLASS.get(),
+                ChromaItems.CHROMA_STAINED_GLASS_PANE.get(),
                 ChromaItems.CHROMA_BANNER.get()
         };
 
         event.register((stack, tintIndex) -> {
             int colorStart = stack.hasTag() && stack.getTag().contains("ChromaColor")
                     ? stack.getTag().getInt("ChromaColor") : 0xFFFFFF;
-            int colorEnd = com.orbital.chroma.api.ColorAPI.getItemGradientEnd(stack);
+            int colorEnd = ColorAPI.getItemGradientEnd(stack);
             return interpolate(colorStart, colorEnd, tintIndex);
         }, dyeableItems);
     }

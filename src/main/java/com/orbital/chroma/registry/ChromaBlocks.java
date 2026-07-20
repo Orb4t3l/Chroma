@@ -1,12 +1,13 @@
 package com.orbital.chroma.registry;
 
-import com.orbital.chroma.ChromaMod;
 import com.orbital.chroma.block.ChromaBannerBlock;
 import com.orbital.chroma.block.ChromaCarpetBlock;
 import com.orbital.chroma.block.ChromaDyeableBlock;
 import com.orbital.chroma.block.ChromaStainedGlassBlock;
+import com.orbital.chroma.block.ChromaStainedGlassPaneBlock;
 import com.orbital.chroma.block.ChromaWallBannerBlock;
 import com.orbital.chroma.block.DyeingTableBlock;
+import com.orbital.chroma.ChromaMod;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -56,6 +57,12 @@ public final class ChromaBlocks {
                     BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(0.3f)
                             .sound(SoundType.GLASS).noOcclusion(),
                     () -> ChromaBlockEntities.CHROMA_STAINED_GLASS.get()));
+
+    public static final RegistryObject<Block> CHROMA_STAINED_GLASS_PANE = REGISTRY.register("chroma_stained_glass_pane",
+            () -> new ChromaStainedGlassPaneBlock(
+                    BlockBehaviour.Properties.of().mapColor(MapColor.NONE).strength(0.3f)
+                            .sound(SoundType.GLASS).noOcclusion(),
+                    () -> ChromaBlockEntities.CHROMA_STAINED_GLASS_PANE.get()));
 
     public static final RegistryObject<Block> CHROMA_BANNER = REGISTRY.register("chroma_banner",
             () -> new ChromaBannerBlock(BlockBehaviour.Properties.of()

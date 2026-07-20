@@ -55,6 +55,12 @@ public final class ChromaBlockEntities {
                     (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_STAINED_GLASS.get(), pos, state),
                     ChromaBlocks.CHROMA_STAINED_GLASS.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<ChromaDyeableBlockEntity>> CHROMA_STAINED_GLASS_PANE = REGISTRY.register(
+            "chroma_stained_glass_pane",
+            () -> BlockEntityType.Builder.of(
+                    (pos, state) -> new ChromaDyeableBlockEntity(ChromaBlockEntities.CHROMA_STAINED_GLASS_PANE.get(), pos, state),
+                    ChromaBlocks.CHROMA_STAINED_GLASS_PANE.get()).build(null));
+
     public static final RegistryObject<BlockEntityType<ChromaBannerBlockEntity>> CHROMA_BANNER = REGISTRY.register(
             "chroma_banner",
             () -> BlockEntityType.Builder.of(
