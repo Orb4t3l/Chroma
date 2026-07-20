@@ -31,7 +31,7 @@ side="BOTH"
 [[dependencies.chroma]]
 modId="blahaj"
 mandatory=false
-versionRange="[1.0,)"
+versionRange="[0.6.2,)"
 ordering="NONE"
 side="BOTH"
 
