@@ -37,7 +37,7 @@ public class DyeingTableBlock extends BaseEntityBlock {
 
     private static final int TABLE_BOTTOM_Y = 6;
     private static final int TABLE_THICKNESS = 2;
-    private static final int LAYER_GAP = 5;
+    private static final int LAYER_GAP = 3;
     
     private static final int TABLE_TOP_Y = TABLE_BOTTOM_Y + TABLE_THICKNESS;
     private static final int SECOND_LAYER_BOTTOM_Y = TABLE_TOP_Y + LAYER_GAP;
