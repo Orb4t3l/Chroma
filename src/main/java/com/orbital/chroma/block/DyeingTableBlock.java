@@ -35,14 +35,22 @@ public class DyeingTableBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART  = EnumProperty.create("part", Part.class);
 
-
-    private static final VoxelShape TABLE_TOP = Block.box(0, 8, 0, 16, 10, 16);
+    private static final int TABLE_BOTTOM_Y = 6;
+    private static final int TABLE_THICKNESS = 2;
+    private static final int LAYER_GAP = 5;
     
-    // Leg shapes for each corner
-    private static final VoxelShape LEG_NW = Block.box(0, 0, 0, 2, 8, 2);
-    private static final VoxelShape LEG_NE = Block.box(14, 0, 0, 16, 8, 2);
-    private static final VoxelShape LEG_SW = Block.box(0, 0, 14, 2, 8, 16);
-    private static final VoxelShape LEG_SE = Block.box(14, 0, 14, 16, 8, 16);
+    private static final int TABLE_TOP_Y = TABLE_BOTTOM_Y + TABLE_THICKNESS;
+    private static final int SECOND_LAYER_BOTTOM_Y = TABLE_TOP_Y + LAYER_GAP;
+    private static final int SECOND_LAYER_TOP_Y = SECOND_LAYER_BOTTOM_Y + TABLE_THICKNESS;
+
+    private static final VoxelShape TABLE_BOTTOM_LAYER = Block.box(0, TABLE_BOTTOM_Y, 0, 16, TABLE_TOP_Y, 16);
+    private static final VoxelShape TABLE_TOP_LAYER = Block.box(0, SECOND_LAYER_BOTTOM_Y, 0, 16, SECOND_LAYER_TOP_Y, 16);
+    private static final VoxelShape TABLE_TOP = Shapes.or(TABLE_BOTTOM_LAYER, TABLE_TOP_LAYER);
+    
+    private static final VoxelShape LEG_NW = Block.box(0, 0, 0, 2, TABLE_BOTTOM_Y, 2);
+    private static final VoxelShape LEG_NE = Block.box(14, 0, 0, 16, TABLE_BOTTOM_Y, 2);
+    private static final VoxelShape LEG_SW = Block.box(0, 0, 14, 2, TABLE_BOTTOM_Y, 16);
+    private static final VoxelShape LEG_SE = Block.box(14, 0, 14, 16, TABLE_BOTTOM_Y, 16);
 
     private static final VoxelShape SHAPE_CONTROLLER_NORTH = Shapes.or(TABLE_TOP, LEG_NE, LEG_SE);
     private static final VoxelShape SHAPE_CONTROLLER_EAST = Shapes.or(TABLE_TOP, LEG_SE, LEG_SW);
