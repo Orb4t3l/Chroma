@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,17 +42,17 @@ public class ChromaCarpetBlock extends BaseEntityBlock {
         return true;
     }
 
+    @Override
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        // Matches vanilla CarpetBlock: requires a non-air block directly below,
+        // not necessarily solid/full (another carpet, a slab, etc. is fine).
+        return !level.getBlockState(pos.below()).isAir();
+    }
+
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ChromaDyeableBlockEntity(beType.get(), pos, state);
-    }
-
-    @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        BlockEntity be = level.getBlockEntity(pos);
-        if (be != null) DyeableBlockEntity.applyColorFromStack(be, stack);
     }
 
     @Nullable
@@ -64,5 +65,13 @@ public class ChromaCarpetBlock extends BaseEntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state,
+                            @Nullable LivingEntity placer, ItemStack stack) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be != null) DyeableBlockEntity.applyColorFromStack(be, stack);
     }
 }
