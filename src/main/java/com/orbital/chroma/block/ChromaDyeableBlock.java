@@ -5,6 +5,7 @@ import com.orbital.chroma.blockentity.ChromaDyeableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
@@ -48,5 +49,14 @@ public class ChromaDyeableBlock extends BaseEntityBlock {
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public float getDestroyProgress(BlockState state, net.minecraft.world.entity.player.Player player, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        ItemStack stack = player.getMainHandItem();
+        if (stack.is(Items.SHEARS)) {
+            return 5.0f;
+        }
+        return super.getDestroyProgress(state, player, level, pos);
     }
 }

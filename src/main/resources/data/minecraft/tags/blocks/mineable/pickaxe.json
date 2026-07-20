@@ -1,4 +1,5 @@
 {
+  "replace": false,
   "values": [
     "chroma:chroma_concrete",
     "chroma:chroma_terracotta"

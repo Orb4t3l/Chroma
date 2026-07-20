@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "chroma:dyeing_table",
+    "chroma:chroma_banner",
+    "chroma:chroma_wall_banner"
+
+  ]
+}

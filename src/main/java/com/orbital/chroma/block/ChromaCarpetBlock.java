@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -81,5 +82,14 @@ public class ChromaCarpetBlock extends BaseEntityBlock {
         super.setPlacedBy(level, pos, state, placer, stack);
         BlockEntity be = level.getBlockEntity(pos);
         if (be != null) DyeableBlockEntity.applyColorFromStack(be, stack);
+    }
+
+    @Override
+    public float getDestroyProgress(BlockState state, net.minecraft.world.entity.player.Player player, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        ItemStack stack = player.getMainHandItem();
+        if (stack.is(Items.SHEARS)) {
+            return 5.0f;
+        }
+        return super.getDestroyProgress(state, player, level, pos);
     }
 }
