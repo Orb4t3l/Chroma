@@ -4,6 +4,7 @@ import com.orbital.chroma.menu.DyeingTableMenu;
 import com.orbital.chroma.network.ApplyGradientPacket;
 import com.orbital.chroma.network.ChromaNetwork;
 import com.orbital.chroma.network.SetDyeColorPacket;
+import com.orbital.chroma.network.UnchromafyPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -62,6 +63,7 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
     private GradientSlider blueSlider;
     private EditBox hexBox;
     private Button modeBtn;
+    private Button unchromafyBtn;
 
     private boolean gradientMode = false;
     private boolean editingA     = true;
@@ -119,11 +121,19 @@ public class DyeingTableScreen extends AbstractContainerScreen<DyeingTableMenu> 
                 .size(MODE_W, MODE_H)
                 .build();
         addRenderableWidget(modeBtn);
+
+        unchromafyBtn = Button.builder(Component.literal("Unchromafy"),
+                        btn -> ChromaNetwork.CHANNEL.sendToServer(new UnchromafyPacket()))
+                .pos(leftPos + 92, topPos + MODE_Y)
+                .size(72, MODE_H)
+                .build();
+        addRenderableWidget(unchromafyBtn);
     }
 
     private void toggleMode() {
         gradientMode = !gradientMode;
         hexBox.visible = !gradientMode;
+        unchromafyBtn.visible = !gradientMode;
         if (gradientMode) {
             modeBtn.setMessage(Component.literal("◀ Single"));
             editingA = true;
