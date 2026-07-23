@@ -1,0 +1,7 @@
+{
+  "parent": "chroma:block/chroma_stained_glass_pane_noside",
+  "textures": {
+    "pane": "minecraft:block/white_stained_glass",
+    "edge": "minecraft:block/white_stained_glass_pane_top"
+  }
+}
