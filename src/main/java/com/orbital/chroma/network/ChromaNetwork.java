@@ -28,6 +28,11 @@ public final class ChromaNetwork {
                 ApplyGradientPacket::encode,
                 ApplyGradientPacket::new,
                 ApplyGradientPacket::handle);
+
+        CHANNEL.registerMessage(packetId++, UnchromafyPacket.class,
+                UnchromafyPacket::encode,
+                UnchromafyPacket::new,
+                UnchromafyPacket::handle);
     }
 
     private ChromaNetwork() {}

@@ -20,6 +20,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,8 +46,9 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
                 if (read != -1) pickerColor = read;
             }
             setChanged();
-            if (level != null && !level.isClientSide)
+            if (level != null && !level.isClientSide) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
         }
 
         @Override
@@ -71,7 +73,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
     @Nullable
     private static Item getConversionTarget(Block block) {
         BlockState state = block.defaultBlockState();
-        if (state.is(BlockTags.WOOL))         return ChromaItems.CHROMA_WOOL.get();
+        if (state.is(BlockTags.WOOL)) return ChromaItems.CHROMA_WOOL.get();
         if (state.is(BlockTags.WOOL_CARPETS)) return ChromaItems.CHROMA_CARPET.get();
         ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
         if (id == null) return null;
@@ -79,8 +81,98 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         if (path.endsWith("_concrete_powder")) return ChromaItems.CHROMA_CONCRETE_POWDER.get();
         if (path.endsWith("_concrete"))        return ChromaItems.CHROMA_CONCRETE.get();
         if (path.contains("terracotta") && !path.contains("glazed")) return ChromaItems.CHROMA_TERRACOTTA.get();
+        if (path.endsWith("_stained_glass_pane")) return ChromaItems.CHROMA_STAINED_GLASS_PANE.get();
         if (path.endsWith("_stained_glass"))   return ChromaItems.CHROMA_STAINED_GLASS.get();
         return null;
+    }
+
+    /**
+     * Reverse of getConversionTarget - given a Chroma item, returns the plain
+     * vanilla item it should revert to when "Unchromafy" is used, discarding
+     * all color/gradient data.
+     */
+    @Nullable
+    private static Item getReverseTarget(Item chromaItem) {
+        if (chromaItem == ChromaItems.CHROMA_WOOL.get())            return Items.WHITE_WOOL;
+        if (chromaItem == ChromaItems.CHROMA_CARPET.get())          return Items.WHITE_CARPET;
+        if (chromaItem == ChromaItems.CHROMA_CONCRETE.get())        return Items.WHITE_CONCRETE;
+        if (chromaItem == ChromaItems.CHROMA_CONCRETE_POWDER.get()) return Items.WHITE_CONCRETE_POWDER;
+        if (chromaItem == ChromaItems.CHROMA_TERRACOTTA.get())      return Items.WHITE_TERRACOTTA;
+        if (chromaItem == ChromaItems.CHROMA_STAINED_GLASS.get())   return Items.WHITE_STAINED_GLASS;
+        if (chromaItem == ChromaItems.CHROMA_STAINED_GLASS_PANE.get()) return Items.WHITE_STAINED_GLASS_PANE;
+        if (chromaItem == ChromaItems.CHROMA_BANNER.get())          return Items.WHITE_BANNER;
+        return null;
+    }
+
+    public int getPickerColor() { return pickerColor; }
+
+    public void setPickerColor(int rgb) {
+        this.pickerColor = rgb;
+        setChanged();
+    }
+
+    public void applyColorToInput() {
+        ItemStack stack = itemHandler.getStackInSlot(0);
+        if (stack.isEmpty()) return;
+        ItemStack result = coloredCopy(stack, pickerColor);
+        result.setCount(stack.getCount());
+        itemHandler.setStackInSlot(0, result);
+        setChanged();
+    }
+
+    /**
+     * Strips a Chroma item back down to its plain vanilla equivalent,
+     * discarding color and gradient data entirely. For non-Chroma-specific
+     * items (leather armor, compat mod items), just clears the relevant
+     * color tags instead of swapping the item type.
+     */
+    public void unchromafy() {
+        ItemStack stack = itemHandler.getStackInSlot(0);
+        if (stack.isEmpty()) return;
+
+        Item reverseTarget = getReverseTarget(stack.getItem());
+        if (reverseTarget != null) {
+            ItemStack plain = new ItemStack(reverseTarget, stack.getCount());
+            itemHandler.setStackInSlot(0, plain);
+            setChanged();
+            return;
+        }
+
+        if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem) {
+            ItemStack copy = stack.copy();
+            if (copy.hasTag() && copy.getTag().contains("display")) {
+                copy.getTag().getCompound("display").remove("color");
+            }
+            itemHandler.setStackInSlot(0, copy);
+            setChanged();
+            return;
+        }
+
+        if (ColorAPI.isDyeableItem(stack.getItem())) {
+            // Compat-registered item: no generic "reset" concept exists across
+            // arbitrary mods, so just clear whatever tags we control.
+            ItemStack copy = stack.copy();
+            if (copy.hasTag()) {
+                copy.getTag().remove("ChromaColor");
+                copy.getTag().remove("ChromaGradientEnd");
+            }
+            itemHandler.setStackInSlot(0, copy);
+            setChanged();
+            return;
+        }
+
+        if (stack.hasTag() && stack.getTag().contains("ChromaColor")) {
+            ItemStack copy = stack.copy();
+            copy.getTag().remove("ChromaColor");
+            copy.getTag().remove("ChromaGradientEnd");
+            if (copy.getTag().contains("BlockEntityTag")) {
+                CompoundTag bet = copy.getTag().getCompound("BlockEntityTag");
+                bet.remove("Color");
+                bet.remove("GradientEnd");
+            }
+            itemHandler.setStackInSlot(0, copy);
+            setChanged();
+        }
     }
 
     private ItemStack coloredCopy(ItemStack original, int color) {
@@ -95,7 +187,7 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             return copy;
         }
         if (original.is(ItemTags.BANNERS)) {
-            ItemStack banner = new ItemStack(ChromaItems.CHROMA_BANNER.get(), original.getCount());
+            ItemStack banner = new ItemStack(ChromaItems.CHROMA_BANNER.get());
             if (original.hasTag()) banner.setTag(original.getTag().copy());
             ColorAPI.setItemColor(banner, color);
             return banner;
@@ -119,22 +211,6 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
         return original.copy();
-    }
-
-    public int getPickerColor() { return pickerColor; }
-
-    public void setPickerColor(int rgb) {
-        this.pickerColor = rgb;
-        setChanged();
-    }
-
-    public void applyColorToInput() {
-        ItemStack stack = itemHandler.getStackInSlot(0);
-        if (stack.isEmpty()) return;
-        ItemStack result = coloredCopy(stack, pickerColor);
-        result.setCount(stack.getCount());
-        itemHandler.setStackInSlot(0, result);
-        setChanged();
     }
 
     public void applyGradient(int colorA, int colorB) {
@@ -194,7 +270,8 @@ public class DyeingTableBlockEntity extends BlockEntity implements MenuProvider 
         return super.getCapability(cap, side);
     }
 
-    @Override public void invalidateCaps() { lazyHandler.invalidate(); }
+    @Override
+    public void invalidateCaps() { lazyHandler.invalidate(); }
 
     @Override
     public Component getDisplayName() {
