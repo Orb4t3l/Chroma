@@ -15,6 +15,8 @@ public final class SophisticatedBackpacksCompat {
             "sophisticatedbackpacks:netherite_backpack"
     };
 
+    private static final int DEFAULT_COLOR = 0x964B00;
+
     private SophisticatedBackpacksCompat() {}
 
     public static void register() {
@@ -22,19 +24,21 @@ public final class SophisticatedBackpacksCompat {
             Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
             if (item == null) continue;
 
-            ColorAPI.registerCustomDyeableItem(
-                    item,
+            ColorAPI.registerCustomDyeableItem(item,
                     (stack, rgb) -> {
-                        var bet = stack.getOrCreateTagElement("BlockEntityTag");
-                        bet.putInt("clothColor", rgb);
-                        bet.putInt("borderColor", darken(rgb, 0.6f));
+                        // clothColor/borderColor live at the ROOT of the item's
+                        // own tag, NOT nested under BlockEntityTag - confirmed
+                        // from an actual in-game NBT dump.
+                        var tag = stack.getOrCreateTag();
+                        tag.putInt("clothColor", rgb);
+                        tag.putInt("borderColor", darken(rgb, 0.6f));
                     },
                     stack -> {
-                        if (!stack.hasTag()) return 0x964B00;
-                        var bet = stack.getTag().getCompound("BlockEntityTag");
-                        return bet.contains("clothColor") ? bet.getInt("clothColor") : 0x964B00;
-                    }
-            );
+                        if (stack.hasTag() && stack.getTag().contains("clothColor")) {
+                            return stack.getTag().getInt("clothColor");
+                        }
+                        return DEFAULT_COLOR;
+                    });
         }
     }
 
