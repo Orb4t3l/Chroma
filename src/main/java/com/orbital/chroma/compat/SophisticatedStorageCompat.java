@@ -33,14 +33,15 @@ public final class SophisticatedStorageCompat {
             if (item == null) continue;
             ColorAPI.registerCustomDyeableItem(item,
                     (stack, rgb) -> {
-                        var bet = stack.getOrCreateTagElement("BlockEntityTag");
-                        bet.putInt("clothColor", rgb);
-                        bet.putInt("borderColor", darken(rgb, 0.6f));
+                        var tag = stack.getOrCreateTag();
+                        tag.putInt("clothColor", rgb);
+                        tag.putInt("borderColor", darken(rgb, 0.6f));
                     },
                     stack -> {
-                        if (!stack.hasTag()) return DEFAULT_COLOR;
-                        var bet = stack.getTag().getCompound("BlockEntityTag");
-                        return bet.contains("clothColor") ? bet.getInt("clothColor") : DEFAULT_COLOR;
+                        if (stack.hasTag() && stack.getTag().contains("clothColor")) {
+                            return stack.getTag().getInt("clothColor");
+                        }
+                        return DEFAULT_COLOR;
                     });
         }
     }

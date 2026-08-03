@@ -9,21 +9,18 @@ public final class BlahajCompat {
 
     private static final int SHARK_BLUE = 0x4E7EA1;
 
-    private static final String[] PLUSHIES = {
-            "blahaj:blahaj",
-            "blahaj:klappar_haj",
-            "blahaj:blavingad",
-            "blahaj:bread_pillow"
-    };
-
     private BlahajCompat() {}
 
     public static void register() {
-        for (String id : PLUSHIES) {
-            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
-            if (item == null) continue;
-            ColorAPI.registerCustomDyeableItem(
-                    item,
+        for (var entry : ForgeRegistries.ITEMS.getEntries()) {
+            ResourceLocation id = entry.getKey().location();
+            if (!id.getNamespace().equals("blahaj")) continue;
+
+            Item item = entry.getValue();
+            if (!(item instanceof net.minecraft.world.item.DyeableLeatherItem)) continue;
+            if (ColorAPI.isDyeableItem(item)) continue;
+
+            ColorAPI.registerCustomDyeableItem(item,
                     (stack, rgb) -> stack.getOrCreateTagElement("display").putInt("color", rgb),
                     stack -> {
                         if (stack.hasTag() && stack.getTag().contains("display")) {
@@ -31,8 +28,7 @@ public final class BlahajCompat {
                             if (d.contains("color")) return d.getInt("color");
                         }
                         return SHARK_BLUE;
-                    }
-            );
+                    });
         }
     }
 }
